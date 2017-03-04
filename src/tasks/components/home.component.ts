@@ -8,6 +8,7 @@ import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { CourseService } from '../services/course-service';
 import { ICourse } from '../models/course';
 import { ISubject } from '../models/subject';
+import { Result } from '../models/rule';
 
 //TODO filter courses by  level / subject
 
@@ -26,6 +27,10 @@ export class HomeComponent {
   levels: any[];
   selectedCourses: ICourse[] =[];
 
+private results: Result[];
+  private totalPoints: number = 0;
+  private courseAdded$: ReplaySubject<any> = new ReplaySubject();
+  private couseRemoved$: ReplaySubject<any> = new ReplaySubject();
   private allCourses$: FirebaseListObservable<ICourse[]>;
   private subjectSelected$: ReplaySubject<any> = new ReplaySubject();
   private levelSelected$: ReplaySubject<any> = new ReplaySubject();
@@ -48,18 +53,18 @@ export class HomeComponent {
     // create form    
     this.form = this.fb.group({
       level: [this.levels[0], Validators.required],
-      subject: [null, Validators.required],
+      subject: ['ARCHDES', Validators.required],
       course: [null, Validators.required]
     });
 
     // update form subject
-    this.subjects$.first().subscribe(subjects => {
-      this.form.controls['subject'].setValue(subjects[0].subject);
-    });
+    // this.subjects$.first().subscribe(subjects => {
+    //   this.form.controls['subject'].setValue(subjects[0].subject);
+    // });
 
     // initiailse dropdowns
     this.levelSelected$.next(this.levels[0]);
-    this.subjectSelected$.next('ANCHIST');
+    this.subjectSelected$.next('ARCHDES');
 
     // fire observables when dropdowns change
     this.form.valueChanges.subscribe(data => {
@@ -73,17 +78,39 @@ export class HomeComponent {
 
       this.lastFormValue = data;
 
-    })
+    });
+
+    this.courseAdded$.subscribe((course) => {
+
+      let idx = this.selectedCourses.findIndex( c => { return c.$key === course.$key });
+      if(idx < 0)
+      {
+        this.selectedCourses.push(course);
+        this.totalPoints += course.credits;
+        this.results = this.courseService.checkRules(this.selectedCourses);
+      }
+      
+    });
+
+    this.couseRemoved$.subscribe((key) => {
+
+    let idx = this.selectedCourses.findIndex( c => { return c.$key === key });
+    let removed = this.selectedCourses.splice(idx,1)[0];
+       this.totalPoints -= <any>removed.credits;
+       this.results = this.courseService.checkRules(this.selectedCourses);
+    });    
   }
 
   public addCourse()
   {
-    this.selectedCourses.push(this.form.controls['course'].value);
+    let course = this.form.controls['course'].value;
+    this.courseAdded$.next(course);
+
   }
   public removeCourse(key:string)
   {
-    let idx = this.selectedCourses.findIndex( c => { return c.$key === key });
-    this.selectedCourses.splice(idx,1);
+    this.couseRemoved$.next(key);
+
   }
 
   private getLevels(): any[] {
@@ -94,12 +121,9 @@ export class HomeComponent {
     ]
   }
 
-  private updateCourseList(subject: string) {
-    this.courses$ = this.courseService.getCourses(subject);
-  }
-
   private chosenLevel = undefined;
   private chosenSubject = undefined;
+  // Course dropdowns have changed - update courses user can choose from
   private filterCourses(level: any, subject: any) {
     let component = this;
     this.loading = true

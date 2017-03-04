@@ -6,6 +6,7 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/every';
 import { ICourse } from '../models/course';
 import { ISubject, Subject } from '../models/subject';
+import {  Rule, Result } from '../models/rule';
 
 
 @Injectable()
@@ -37,11 +38,77 @@ export class CourseService {
   getSubjects(): Observable<ISubject[]> {
     //this.subjects$.every;
     this.subjects$ = this.af.database.list(this.SUBJECTS)
-    .map((subjects) => { return subjects.map((subject)=> {
+    .map((subjects) => { 
+      //debugger;
+      subjects.sort(function(a, b){
+          if(a.$value < b.$value) return -1;
+          if(a.$value > b.$value) return 1;
+          return 0;
+      });
+      return subjects.map((subject)=> {
       //console.log(subject)
       return new Subject(subject);
     })});
     return this.subjects$;
+  }
+
+  getRules()
+  {
+    // Get the rules for current degree only
+    // 1) must have All from this group
+    // 2) must have at least ONE from this group
+    //'ARCHDES 100', 'ARCHDRC 102', 'ARCHTECH 106', 'ARCHDES 101', 'ARCHHTC 102', 'ARCHTECH 107'
+    return  [
+      new Rule(1, [ 'ARCHDES 100',  'ARCHDES 101' ]),
+      new Rule(1, [ 'ARCHDES 200', 'ARCHDRC 202', 'ARCHTECH 207', 'ARCHHTC 235', 'ARCHDES 201', 'ARCHTECH 208', 'ARCHHTC 236']),
+      new Rule(1, [ 'ARCHDES 300', 'ARCHHTC 340', 'ARCHTECH 307', 'ARCHDES 301', 'ARCHHTC 339', 'ARCHTECH 312', 'ARCHPRM 304']),
+      new Rule(2, [ 'ARCHDRC 300','ARCHDRC 301','ARCHDRC 302','ARCHDRC 303','ARCHDRC 304','ARCHDRC 370','ARCHDRC 371','ARCHDRC 372','ARCHDRC 373'])
+    ];
+  }
+
+  checkRules(courses :ICourse[]) {
+     //check list of selected courses against all Rules
+     // A rule needs to return TRUE/ FALSE and if false an error message(s)
+     let results:  Result[] = [];
+     let rules = this.getRules();
+     rules.forEach((rule) => {
+        // each rule type is evaluated differently
+        switch(rule.type)
+        {
+            case 1:
+             results.push(this.evaulateRuleTypeOne(courses, rule.courses));
+
+            case 2:
+             results.push(this.evaulateRuleTypeTwo(courses, rule.courses));
+        }
+     });
+     return results;
+  }
+
+  private evaulateRuleTypeOne(courses:ICourse[], required:string[]) : Result
+  {
+    // for this rule type, courses must have ALL courses from required
+    let missing = required.filter( function( req_code ) {
+      return !courses.find( (c) => { return c.code == req_code }); 
+    });
+    if(missing.length > 0)
+    {
+       return new Result(['must select all> ' + required.toString()]);
+    }
+    return new Result([]);
+  }
+
+  private evaulateRuleTypeTwo(courses:ICourse[], required:string[]) : Result
+  {
+    // for this rule type, courses must have at least one course from required
+    let found = required.filter( function( req_code ) {
+      return courses.find( (c) => { return c.code == req_code });
+    });
+    if(found.length === 0)
+    {
+       return new Result(['must select one from ' + required.toString()]);
+    }
+    return new Result([]);
   }
 
   private populateDB() {
