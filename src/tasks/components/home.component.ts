@@ -16,50 +16,7 @@ import { ISubject } from '../models/subject';
   styles: [
     require('./home.scss')
   ],
-  template: `
-      <div class="g-row">
-      <div class="g-col">
-  <h3>Choose Course To Add</h3>
-  <form [formGroup]="form" >
-  <div class="mdl-selectfield">
-    <label for="level">Level</label>
-    <select name="level" formControlName="level">
-          <option [selected]="form.controls['level'].value == null" value="">-- Select --</option>
-        <option *ngFor="let level of levels" [ngValue]="level">  
-            {{level.name}}
-        </option>
-    </select>
-
-    </div>   
-  <div class="mdl-selectfield">
-    <label for="subject">Subject</label>
-    <select name="subject" formControlName="subject">
-          <option [selected]="form.controls['subject'].value == null" value="">-- Select --</option>
-        <option *ngFor="let subject of subjects$ |async" [ngValue]="subject.subject">  
-            {{subject.subject}}
-        </option>
-    </select>
-
-    </div> 
-
-    </form>
-          <div class="mdl-selectfield">
-          <div *ngIf="loading">
-            <span>Refreshing Course List</span>
-          </div>
-          <label *ngIf="!loading" for="course">Course</label>
-   
-    <select name="course" [ngClass]="{'hidden': loading}">
-          <option value="">-- Select --</option>
-        <option *ngFor="let course of filteredCourses$ |async" [ngValue]="course.title">  
-            {{course.title}}
-        </option>
-    </select>
-
-    </div>   
-     </div>   
-      </div>   
-  `
+  template: require('./home.html')
 })
 export class HomeComponent {
   courses$: FirebaseListObservable<ICourse[]>;
@@ -67,57 +24,66 @@ export class HomeComponent {
   form: FormGroup;
   loading: boolean = false;
   levels: any[];
+  selectedCourses: ICourse[] =[];
 
   private allCourses$: FirebaseListObservable<ICourse[]>;
   private subjectSelected$: ReplaySubject<any> = new ReplaySubject();
   private levelSelected$: ReplaySubject<any> = new ReplaySubject();
   private filteredCourses$: Observable<any>;
+  private lastFormValue: any = {subject: undefined, level: undefined };
 
   constructor(private fb: FormBuilder, private courseService: CourseService) {
+    let component = this;
 
-     this.levels = this.getLevels();
-
-    // we should start with default value?
-      this.form = this.fb.group({
-        level: [this.levels[0], Validators.required],
-        subject: [null, Validators.required]
-      });
-
-     this.subjects$ = this.courseService.getSubjects();
-     
-      this.subjects$.first().subscribe(subjects => {
-        this.form.controls['subject'].setValue(subjects[0].subject);
-      });
-
-
-   
-   
+    // set up observables
     this.allCourses$ = this.courseService.getAllCourses();
-
-    // here we set the requests that are actually displayed.
-    // if the filter is null, we take all requests, else we show the filtered.
-
     let filteredByLevel$ = this.levelSelected$.switchMap(level => this.filterCourses(level, undefined));
     let filteredBySubject$ = this.subjectSelected$.switchMap(subject => this.filterCourses(undefined, subject));
+    this.filteredCourses$ = Observable.merge(filteredByLevel$, filteredBySubject$);
 
-    this.filteredCourses$ = Observable.merge(filteredByLevel$,filteredBySubject$);
-    
-    
+    // get data for dropdowns
+    this.levels = this.getLevels();
+    this.subjects$ = this.courseService.getSubjects();
 
-    //start with show all false
+    // create form    
+    this.form = this.fb.group({
+      level: [this.levels[0], Validators.required],
+      subject: [null, Validators.required],
+      course: [null, Validators.required]
+    });
+
+    // update form subject
+    this.subjects$.first().subscribe(subjects => {
+      this.form.controls['subject'].setValue(subjects[0].subject);
+    });
+
+    // initiailse dropdowns
     this.levelSelected$.next(this.levels[0]);
     this.subjectSelected$.next('ANCHIST');
 
+    // fire observables when dropdowns change
     this.form.valueChanges.subscribe(data => {
-      console.log('Form changes', data)
-      if (data.subject) {
+      //console.log('Form changes', data)
+      if (component.lastFormValue.subject != data.subject) {
         this.subjectSelected$.next(data.subject);
       }
-      else {
+      else if(component.lastFormValue.level != data.level) {
         this.levelSelected$.next(data.level);
       }
 
+      this.lastFormValue = data;
+
     })
+  }
+
+  public addCourse()
+  {
+    this.selectedCourses.push(this.form.controls['course'].value);
+  }
+  public removeCourse(key:string)
+  {
+    let idx = this.selectedCourses.findIndex( c => { return c.$key === key });
+    this.selectedCourses.splice(idx,1);
   }
 
   private getLevels(): any[] {
@@ -134,66 +100,31 @@ export class HomeComponent {
 
   private chosenLevel = undefined;
   private chosenSubject = undefined;
-  private filterCourses(level: any, subject: any)
-  {
+  private filterCourses(level: any, subject: any) {
     let component = this;
     this.loading = true
     console.log("filtering");
-    if(level != undefined)
-    {
+    if (level != undefined) {
       this.chosenLevel = level;
     }
-    if(subject != undefined)
-    {
+    if (subject != undefined) {
       this.chosenSubject = subject;
-    }    
-    if(component.chosenLevel && component.chosenSubject)
-    {
-       let bySubject$ = this.allCourses$
-          .map(courses => courses.filter(course => { 
-            return course.subject ===  component.chosenSubject;
-          }));
+    }
+    if (component.chosenLevel && component.chosenSubject) {
+      let bySubject$ = this.allCourses$
+        .map(courses => courses.filter(course => {
+          return course.subject === component.chosenSubject;
+        }));
 
-        return bySubject$
-               .map(courses => courses.filter(course => { 
-            return course.level ===  component.chosenLevel.id;
-          }))
-          .do(() => component.loading = false);
+      return bySubject$
+        .map(courses => courses.filter(course => {
+          return course.level === component.chosenLevel.id;
+        }))
+        .do(() => component.loading = false);
 
-   }
-   else {
-     return [];
-   }
-
-    // return this.allCourses$
-    //       .map(courses => courses.filter(course => {
-    //         if(component.chosenLevel && !component.chosenSubject)
-    //         {
-    //             return course.level === component.chosenLevel.id;
-    //         }
-    //         else if(!component.chosenLevel && component.chosenSubject)
-    //         {
-    //         return course.subject === component.chosenSubject;
-    //         }
-    //         else{
-    //           let byCourses = 
-    //           return course.level === component.chosenLevel.id && course.subject === component.chosenSubject;
-    //         }
-    //       }));
-
-        
+    }
+    else {
+      return [];
+    }
   }
 }
-
-
-/*
-    this.filteredCourses$ = this.level$
-      //when the filter observable fires (when switch changed)
-      .switchMap(level => {
-        //if filter is true 
-        return this.allCourses$
-          .map(courses => courses.filter(course => {
-            return course.level === level.id;
-          }));
-      });
-      */

@@ -1,0 +1,51 @@
+<div class="g-row">
+    <div class="g-col">
+        <h3>Choose Course To Add</h3>
+        <form [formGroup]="form">
+
+            <div class="mdl-selectfield">
+                <label for="level">Level</label>
+                <select name="level" formControlName="level">
+                        <option [selected]="form.controls['level'].value == null" value="">-- Select --</option>
+                        <option *ngFor="let level of levels" [ngValue]="level">  
+                            {{level.name}}
+                        </option>
+                    </select>
+
+            </div>
+            <div class="mdl-selectfield">
+                <label for="subject">Subject</label>
+                <select name="subject" formControlName="subject">
+                        <option [selected]="form.controls['subject'].value == null" value="">-- Select --</option>
+                        <option *ngFor="let subject of subjects$ |async" [ngValue]="subject.subject">  
+                            {{subject.subject}}
+                        </option>
+                    </select>
+            </div>
+        
+        <div class="mdl-selectfield">
+            <div *ngIf="loading">
+                <span>Refreshing Course List</span>
+            </div>
+            <div [ngClass]="{'hidden': loading}">
+                <label *ngIf="!loading" for="course">Course</label>
+                <select name="course"  formControlName="course">
+                        <option value="">-- Select --</option>
+                        <option *ngFor="let course of filteredCourses$ |async" [ngValue]="course">  
+                            {{course.title}}
+                        </option>
+                    </select>
+                <button (click)="addCourse()">Add</button>
+            </div>
+        </div>
+        </form>
+    </div>
+    <div class="g-col">
+        <h3>Courses</h3>
+        <ul>
+            <li *ngFor="let c of selectedCourses">
+                <span>{{c.title}}</span>
+                <button (click)="removeCourse(c.$key)">Remove</button> </li>
+            </ul>
+    </div>
+</div>
