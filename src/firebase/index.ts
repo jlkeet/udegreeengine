@@ -2,10 +2,11 @@ import { AngularFireModule, AuthMethods } from 'angularfire2';
 
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDaEW83qAOozjJbbJP1YYbEHxxfFksdSHQ',
-  authDomain: 'ng2-todo-app.firebaseapp.com',
-  databaseURL: 'https://ng2-todo-app.firebaseio.com',
-  storageBucket: 'ng2-todo-app.appspot.com'
+    apiKey: "AIzaSyBFjOpqFTnMyTVy3mT9-zvVJkl3_xh1qp0",
+    authDomain: "tmhtest-24418.firebaseapp.com",
+    databaseURL: "https://tmhtest-24418.firebaseio.com",
+    storageBucket: "tmhtest-24418.appspot.com",
+    messagingSenderId: "1099495352125"
 };
 
 const firebaseAuthConfig = {

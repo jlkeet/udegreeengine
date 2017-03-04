@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 
 import { AuthGuard } from '../auth';
@@ -12,9 +12,11 @@ import { TasksComponent } from './components/tasks';
 import { AutoFocusDirective } from './directives/autofocus-directive';
 import { TaskService } from './services/task-service';
 
+import { HomeComponent }from './components/home.component';
+import { CourseService }from './services/course-service';
 
 const routes: Routes = [
-  {path: 'tasks', component: TasksComponent, canActivate: [AuthGuard]}
+  {path: 'tasks', component: HomeComponent, canActivate: [AuthGuard]}
 ];
 
 
@@ -24,15 +26,18 @@ const routes: Routes = [
     TaskFormComponent,
     TaskItemComponent,
     TaskListComponent,
-    TasksComponent
+    TasksComponent,
+    HomeComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     RouterModule.forChild(routes)
   ],
   providers: [
-    TaskService
+    TaskService,
+    CourseService
   ]
 })
 
