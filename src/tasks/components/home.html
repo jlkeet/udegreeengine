@@ -7,6 +7,17 @@
         <form [formGroup]="form">
 
             <div class="mdl-selectfield">
+                <label for="faculty">Faculty</label>
+                <select name="faculty" formControlName="level">
+                        <option [selected]="form.controls['faculty'].value == null" value="">-- Select --</option>
+                        <option *ngFor="let level of levels" [ngValue]="faculty.name">  
+                            {{faculty.name}}
+                        </option>
+                    </select>
+
+            </div>
+
+            <div class="mdl-selectfield">
                 <label for="level">Level</label>
                 <select name="level" formControlName="level">
                         <option [selected]="form.controls['level'].value == null" value="">-- Select --</option>

@@ -9,6 +9,7 @@ import { CourseService } from '../services/course-service';
 import { ICourse } from '../models/course';
 import { ISubject } from '../models/subject';
 import { Result } from '../models/rule';
+import {  IFaculty, Faculty } from '../models/faculty';
 
 //TODO filter courses by  level / subject
 
@@ -22,6 +23,7 @@ import { Result } from '../models/rule';
 export class HomeComponent {
   courses$: FirebaseListObservable<ICourse[]>;
   subjects$: Observable<ISubject[]>;
+  faculties$: Observable<IFaculty[]>;
   form: FormGroup;
   loading: boolean = false;
   levels: any[];
@@ -49,11 +51,12 @@ private results: Result[];
     // get data for dropdowns
     this.levels = this.getLevels();
     this.subjects$ = this.courseService.getSubjects();
-
+    this.faculties$ = this.courseService.getFaculties();
     this.lastFormValue = {subject: 'ARCHDES', level: this.levels[0] }
 
     // create form    
     this.form = this.fb.group({
+      faculty: ['NICAI', Validators.required],
       level: [this.levels[0], Validators.required],
       subject: ['ARCHDES', Validators.required],
       course: [null, Validators.required]

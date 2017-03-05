@@ -7,12 +7,14 @@ import 'rxjs/add/operator/every';
 import { ICourse } from '../models/course';
 import { ISubject, Subject } from '../models/subject';
 import {  Rule, Result } from '../models/rule';
+import {  IFaculty, Faculty } from '../models/faculty';
 
 
 @Injectable()
 export class CourseService {
   private course$: FirebaseListObservable<ICourse[]>;
   private subjects$: Observable<ISubject[]>;
+  private faculties$: Observable<IFaculty[]>;
   private readonly COURSES = '/courses';
   private readonly SUBJECTS = '/subjects';
   private readonly FACULTIES = 'faculties';
@@ -50,6 +52,23 @@ export class CourseService {
       return new Subject(subject);
     })});
     return this.subjects$;
+  }
+
+    getFaculties(): Observable<IFaculty[]> {
+    //this.subjects$.every;
+    this.faculties$ = this.af.database.list(this.FACULTIES)
+    .map((faculties) => { 
+      //debugger;
+      faculties.sort(function(a, b){
+          if(a.$value < b.$value) return -1;
+          if(a.$value > b.$value) return 1;
+          return 0;
+      });
+      return faculties.map((faculty)=> {
+      //console.log(subject)
+      return new Faculty(faculty);
+    })});
+    return this.faculties$;
   }
 
   getRules()
