@@ -35,7 +35,7 @@ private results: Result[];
   private subjectSelected$: ReplaySubject<any> = new ReplaySubject();
   private levelSelected$: ReplaySubject<any> = new ReplaySubject();
   private filteredCourses$: Observable<any>;
-  private lastFormValue: any = {subject: undefined, level: undefined };
+  private lastFormValue: any;
 
   constructor(private fb: FormBuilder, private courseService: CourseService) {
     let component = this;
@@ -49,6 +49,8 @@ private results: Result[];
     // get data for dropdowns
     this.levels = this.getLevels();
     this.subjects$ = this.courseService.getSubjects();
+
+    this.lastFormValue ={subject: 'ARCHDES', level: this.levels[0] }
 
     // create form    
     this.form = this.fb.group({
