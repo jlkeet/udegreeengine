@@ -50,7 +50,7 @@ private results: Result[];
     this.levels = this.getLevels();
     this.subjects$ = this.courseService.getSubjects();
 
-    this.lastFormValue ={subject: 'ARCHDES', level: this.levels[0] }
+    this.lastFormValue = {subject: 'ARCHDES', level: this.levels[0] }
 
     // create form    
     this.form = this.fb.group({
@@ -103,6 +103,17 @@ private results: Result[];
     });    
   }
 
+  public trackCourse(index, course) {
+        return course ? course.code : undefined;
+
+    }
+
+
+    public trackSubject(index, subject)
+    {
+      return subject ? subject.subject : undefined;
+    }
+
   public addCourse()
   {
     let course = this.form.controls['course'].value;
@@ -132,11 +143,18 @@ private results: Result[];
     console.log("filtering");
     if (level != undefined) {
       this.chosenLevel = level;
+      let byLevel$ = this.allCourses$
+        .map(courses => courses.filter(course => {
+          return course.level === component.chosenLevel.id;
+        }));
+
+        return byLevel$.map(courses => courses.filter(course => {
+          return course.subject === component.chosenSubject;
+        }));
     }
-    if (subject != undefined) {
+    else if (subject != undefined) {
       this.chosenSubject = subject;
-    }
-    if (component.chosenLevel && component.chosenSubject) {
+
       let bySubject$ = this.allCourses$
         .map(courses => courses.filter(course => {
           return course.subject === component.chosenSubject;

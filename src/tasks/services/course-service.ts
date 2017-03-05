@@ -15,7 +15,7 @@ export class CourseService {
   private subjects$: Observable<ISubject[]>;
   private readonly COURSES = '/courses';
   private readonly SUBJECTS = '/subjects';
-
+  private readonly FACULTIES = 'faculties';
   constructor(private af: AngularFire) {
 
   }
@@ -111,7 +111,7 @@ export class CourseService {
     return new Result([]);
   }
 
-  private populateDB() {
+  private populateSubjects() {
     let subs = [];
     let subjects = this.af.database.list(this.SUBJECTS);
 
@@ -124,5 +124,23 @@ export class CourseService {
         }
       });
     });
+  }
+
+  private populateFaculties() {
+    //use this to generate list of faculties from courses
+    //call from getAllCourses
+        let facs = [];
+        debugger;
+        let faculties = this.af.database.list(this.FACULTIES);
+
+        this.course$.subscribe(snapshots => {
+              snapshots.forEach(snapshot => {
+                let course = (<any>snapshot);
+                if (facs.indexOf(course.faculty) == -1) {
+                  facs.push(course.faculty);
+                  faculties.push(course.faculty);
+                }
+              });
+    });        
   }
 }

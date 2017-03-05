@@ -1,6 +1,8 @@
 <div class="g-row">
     <h2>Bachelor of Architectural Studies - BAS</h2>
-    <div class="g-col">
+</div>
+<div class="g-row">
+    <div class="g-col course-list">
         <h3>Choose Course To Add</h3>
         <form [formGroup]="form">
 
@@ -18,7 +20,7 @@
                 <label for="subject">Subject</label>
                 <select name="subject" formControlName="subject">
                         <option [selected]="form.controls['subject'].value == null" value="">-- Select --</option>
-                        <option *ngFor="let subject of subjects$ |async" [ngValue]="subject.subject">  
+                        <option *ngFor="let subject of subjects$ |async; trackBy: trackSubject" [ngValue]="subject.subject">  
                             {{subject.subject}}
                         </option>
                     </select>
@@ -30,9 +32,9 @@
             </div>
             <div [ngClass]="{'hidden': loading}">
                 <label *ngIf="!loading" for="course">Course</label>
-                <select name="course"  formControlName="course">
+                <select name="course" class="course-select" formControlName="course">
                         <option value="">-- Select --</option>
-                        <option *ngFor="let course of filteredCourses$ |async" [ngValue]="course">  
+                        <option *ngFor="let course of filteredCourses$ |async; trackBy: trackCourse" [ngValue]="course">  
                             {{course.title}} [{{course.code}}]
                         </option>
                     </select>
@@ -41,16 +43,17 @@
         </div>
         </form>
     </div>
+
     <div class="g-col">
         <h3>Courses - {{totalPoints}} pts</h3>
-        <ul>
+        <ul class="courses">
             <li *ngFor="let c of selectedCourses">
                 <span>{{c.title}} [ {{c.code}}]</span>
-                <button (click)="removeCourse(c.$key)">Remove</button> </li>
+                <button (click)="removeCourse(c.$key)">X</button> </li>
             </ul>
-    </div>
-    <div class="g-col">
-        <h3>Results</h3>
+             </div>
+   <div class="g-col">
+        <h3>Warnings</h3>
         <ul>
             <li *ngFor="let res of results">
                 <div *ngIf="!res.passed">

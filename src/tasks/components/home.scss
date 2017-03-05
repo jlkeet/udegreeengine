@@ -1,1 +1,21 @@
 .hidden { display: none; }
+.g-row { display: flex; flex-direction: row; max-width: 80%;}
+.g-col { display: flex; flex-direction: column; padding: 0;}
+
+ul {font-size: 13px; }
+.course-list {
+        max-width: 30%;
+    overflow: hidden;
+}
+.course-select {
+    max-width: 250px;
+}
+ul.courses {
+    li { 
+        list-style: none;
+        border: 1px solid #999;     padding: 1px 2px;
+    margin: 1px 5px; 
+        display: flex;
+    justify-content: space-between;
+    }
+}

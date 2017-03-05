@@ -11,6 +11,6 @@ import './common/styles.scss';
 if (process.env.NODE_ENV === 'production') {
   enableProdMode();
 }
-
+enableProdMode();
 
 platformBrowserDynamic().bootstrapModule(AppModule);

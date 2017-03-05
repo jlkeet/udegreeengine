@@ -3,6 +3,7 @@ export interface ICourse {
   subject: string;
   catalogNumber: string;
   code: string;
+  faculty: string;
   level: string;
   title: string;
   description: string;
@@ -15,6 +16,7 @@ export class Course implements ICourse {
   subject: string;
   catalogNumber: string;
   code: string;
+  faculty: string;
   courseCode: string;
   level: string;
   title: string;
@@ -27,6 +29,7 @@ export class Course implements ICourse {
       this.catalogNumber = course.catalogNumber;
       this.code = course.code;
       this.level = course.level;
+      this.faculty = course.faculty;
       this.title = course.title;
       this.description = course.description;
       this.credits = course.credits;
