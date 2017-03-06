@@ -18,13 +18,37 @@ export class CourseService {
   private readonly COURSES = '/courses';
   private readonly SUBJECTS = '/subjects';
   private readonly FACULTIES = 'faculties';
+
+  private courses: ICourse[] = [];
+
   constructor(private af: AngularFire) {
 
   }
   // this needs to be a query, based upon 
-  getAllCourses(): FirebaseListObservable<ICourse[]> {
-    this.course$ = this.af.database.list(this.COURSES);
-    return this.course$;
+  getAllCourses(): ICourse[] {
+
+    if(this.courses.length == 0)
+    {
+         let courses$ = this.af.database.list(this.COURSES);
+//consider moving this to route load or doing a query on faculty from the server...
+    courses$.subscribe(snapshots => {
+      snapshots.forEach(snapshot => {
+        let course = (<any>snapshot);
+        this.courses.push(course);
+      });
+    });
+    }
+ 
+
+
+    //this.course$ = this.af.database.list(this.COURSES);
+    //return this.course$;
+
+    return this.courses
+ }
+
+ getCourseForFaculty(){
+
  }
 
   getCourses(subject: string): FirebaseListObservable<ICourse[]> {
@@ -58,7 +82,6 @@ export class CourseService {
     //this.subjects$.every;
     this.faculties$ = this.af.database.list(this.FACULTIES)
     .map((faculties) => { 
-      //debugger;
       faculties.sort(function(a, b){
           if(a.$value < b.$value) return -1;
           if(a.$value > b.$value) return 1;

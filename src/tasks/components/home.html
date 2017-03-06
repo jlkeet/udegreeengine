@@ -8,18 +8,27 @@
 
             <div class="mdl-selectfield">
                 <label for="faculty">Faculty</label>
-                <select name="faculty" formControlName="level">
+                <select name="faculty" formControlName="faculty">
                         <option [selected]="form.controls['faculty'].value == null" value="">-- Select --</option>
-                        <option *ngFor="let level of levels" [ngValue]="faculty.name">  
+                        <option *ngFor="let faculty of faculties$ | async" [ngValue]="faculty.name">  
                             {{faculty.name}}
                         </option>
                     </select>
 
             </div>
+           <div class="mdl-selectfield">
 
+                <label for="subject">Subject {{chosenFaculty}}</label>
+                <select name="subject" formControlName="subject" disabled="{{chosenFaculty == undefined}}">
+                        <option [selected]="form.controls['subject'].value == null" value="">-- Select --</option>
+                        <option *ngFor="let subject of subjects$ |async; trackBy: trackSubject" [ngValue]="subject.subject">  
+                            {{subject.subject}}
+                        </option>
+                    </select>
+            </div>
             <div class="mdl-selectfield">
                 <label for="level">Level</label>
-                <select name="level" formControlName="level">
+                <select name="level" formControlName="level" disabled="{{chosenSubject == undefined}}">
                         <option [selected]="form.controls['level'].value == null" value="">-- Select --</option>
                         <option *ngFor="let level of levels" [ngValue]="level">  
                             {{level.name}}
@@ -27,15 +36,7 @@
                     </select>
 
             </div>
-            <div class="mdl-selectfield">
-                <label for="subject">Subject</label>
-                <select name="subject" formControlName="subject">
-                        <option [selected]="form.controls['subject'].value == null" value="">-- Select --</option>
-                        <option *ngFor="let subject of subjects$ |async; trackBy: trackSubject" [ngValue]="subject.subject">  
-                            {{subject.subject}}
-                        </option>
-                    </select>
-            </div>
+ 
         
         <div class="mdl-selectfield">
             <div *ngIf="loading">
@@ -43,9 +44,9 @@
             </div>
             <div [ngClass]="{'hidden': loading}">
                 <label *ngIf="!loading" for="course">Course</label>
-                <select name="course" class="course-select" formControlName="course">
+                <select name="course" class="course-select" formControlName="course" disabled="{{chosenLevel == undefined}}">
                         <option value="">-- Select --</option>
-                        <option *ngFor="let course of filteredCourses$ |async; trackBy: trackCourse" [ngValue]="course">  
+                        <option *ngFor="let course of filteredCourses; trackBy: trackCourse" [ngValue]="course">  
                             {{course.title}} [{{course.code}}]
                         </option>
                     </select>

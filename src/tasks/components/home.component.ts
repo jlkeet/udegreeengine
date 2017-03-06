@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AngularFire, FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2';
 import 'rxjs/add/operator/merge';
 import 'rxjs/add/operator/first';
+import {EmptyObservable} from 'rxjs/observable/EmptyObservable';
+
 import { Observable } from 'rxjs/Observable';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { CourseService } from '../services/course-service';
@@ -34,54 +36,73 @@ private results: Result[];
   private courseAdded$: ReplaySubject<any> = new ReplaySubject();
   private couseRemoved$: ReplaySubject<any> = new ReplaySubject();
   private allCourses$: FirebaseListObservable<ICourse[]>;
+  private allCourses: ICourse[];
+  private filteredCourses: ICourse[];
   private subjectSelected$: ReplaySubject<any> = new ReplaySubject();
   private levelSelected$: ReplaySubject<any> = new ReplaySubject();
   private filteredCourses$: Observable<any>;
   private lastFormValue: any;
 
+  private chosenLevel = undefined;
+  private chosenSubject = undefined;
+  private chosenFaculty = undefined;
+
   constructor(private fb: FormBuilder, private courseService: CourseService) {
     let component = this;
 
     // set up observables
-    this.allCourses$ = this.courseService.getAllCourses();
-    let filteredByLevel$ = this.levelSelected$.switchMap(level => this.filterCourses(level, undefined));
-    let filteredBySubject$ = this.subjectSelected$.switchMap(subject => this.filterCourses(undefined, subject));
-    this.filteredCourses$ = Observable.merge(filteredByLevel$, filteredBySubject$);
+    this.allCourses = this.courseService.getAllCourses();
+   // let filteredByLevel$ = this.levelSelected$.switchMap(level => this.filterCourses(level, undefined));
+   // let filteredBySubject$ = this.subjectSelected$.switchMap(subject => this.filterCourses(undefined, subject));
+   // this.filteredCourses$ = Observable.merge(filteredByLevel$, filteredBySubject$);
+  
 
     // get data for dropdowns
     this.levels = this.getLevels();
     this.subjects$ = this.courseService.getSubjects();
     this.faculties$ = this.courseService.getFaculties();
-    this.lastFormValue = {subject: 'ARCHDES', level: this.levels[0] }
+    this.lastFormValue = {}
 
     // create form    
     this.form = this.fb.group({
-      faculty: ['NICAI', Validators.required],
-      level: [this.levels[0], Validators.required],
-      subject: ['ARCHDES', Validators.required],
+      faculty: [null, Validators.required],
+      subject: [null, Validators.required],
+      level: [null, Validators.required],
       course: [null, Validators.required]
     });
 
-    // update form subject
-    // this.subjects$.first().subscribe(subjects => {
-    //   this.form.controls['subject'].setValue(subjects[0].subject);
-    // });
-
-    // initiailse dropdowns
-    this.levelSelected$.next(this.levels[0]);
-    this.subjectSelected$.next('ARCHDES');
-
     // fire observables when dropdowns change
     this.form.valueChanges.subscribe(data => {
-      //console.log('Form changes', data)
-      if (component.lastFormValue.subject != data.subject) {
-        this.subjectSelected$.next(data.subject);
-      }
-      else if(component.lastFormValue.level != data.level) {
-        this.levelSelected$.next(data.level);
-      }
+    if (component.lastFormValue.faculty !=  data.faculty) {
+      component.chosenFaculty = data.faculty;
+    
+      console.log("faculty Set");
+    }
+    if (component.lastFormValue.level != data.level) {
+      component.chosenLevel = data.level;
+        console.log("level Set");
+    }
+    if (component.lastFormValue.subject != data.subject) {
+      component.chosenSubject = data.subject;
+        console.log("subject Set");
+    }
 
-      this.lastFormValue = data;
+    component.lastFormValue = data;
+    //  component.chosenFaculty != undefined ? component.form.get('subject').enable(): component.form.get('subject').disable();
+    //  component.chosenSubject != undefined ? component.form.get('level').enable(): component.form.get('level').disable();
+    //  component.chosenLevel != undefined ? component.form.get('course').enable(): component.form.get('course').disable();
+
+
+  ;
+       
+  if ( component.chosenFaculty && component.chosenLevel && component.chosenSubject ) {
+    component.filteredCourses = component.filterCourses( component.chosenFaculty, component.chosenLevel,component.chosenSubject );
+  }
+  else {
+    component.filteredCourses=[];
+  }
+
+      
 
     });
 
@@ -137,41 +158,57 @@ private results: Result[];
     ]
   }
 
-  private chosenLevel = undefined;
-  private chosenSubject = undefined;
+
+
   // Course dropdowns have changed - update courses user can choose from
-  private filterCourses(level: any, subject: any) {
+  private filterCourses(faculty: any, level: any, subject: any) {
     let component = this;
     this.loading = true
-    console.log("filtering");
-    if (level != undefined) {
-      this.chosenLevel = level;
-      let byLevel$ = this.allCourses$
-        .map(courses => courses.filter(course => {
-          return course.level === component.chosenLevel.id;
-        }));
+       console.log("filterin courses");
+  
+       
 
-        return byLevel$.map(courses => courses.filter(course => {
+       let byFaculty = this.allCourses.filter(course => {
+          return course.faculty === component.chosenFaculty;
+        });
+
+        let bySubject = byFaculty.filter(course => {
           return course.subject === component.chosenSubject;
-        }));
-    }
-    else if (subject != undefined) {
-      this.chosenSubject = subject;
-
-      let bySubject$ = this.allCourses$
-        .map(courses => courses.filter(course => {
-          return course.subject === component.chosenSubject;
-        }));
-
-      return bySubject$
-        .map(courses => courses.filter(course => {
+        });
+        let filteredCourses = bySubject.filter(course => {
           return course.level === component.chosenLevel.id;
-        }))
-        .do(() => component.loading = false);
+        });
+
+        component.loading = false;
+           return filteredCourses;
 
     }
-    else {
-      return [];
-    }
-  }
+    // else if (level != undefined) {
+    //   this.chosenLevel = level;
+    //   let byLevel$ = this.allCourses$
+    //     .map(courses => courses.filter(course => {
+    //       return course.level === component.chosenLevel.id;
+    //     }));
+
+    //     return byLevel$.map(courses => courses.filter(course => {
+    //       return course.subject === component.chosenSubject;
+    //     }));
+    // }
+    // else if (subject != undefined) {
+    //   this.chosenSubject = subject;
+
+    //   let bySubject$ = this.allCourses$
+    //     .map(courses => courses.filter(course => {
+    //       return course.subject === component.chosenSubject;
+    //     }));
+
+    //   return bySubject$
+    //     .map(courses => courses.filter(course => {
+    //       return course.level === component.chosenLevel.id;
+    //     }))
+    //     .do(() => component.loading = false);
+
+    //}
+
+
 }
