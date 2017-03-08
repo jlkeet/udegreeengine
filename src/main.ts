@@ -15,7 +15,7 @@ return this.do(
   nextValue => {
     if(debuggerOn)
     {
-      console.log(message, nextValue);
+      console.log(new Date().toUTCString());
     }
   },
   error => {
@@ -25,7 +25,7 @@ return this.do(
   },
   ()=> {
       if(debuggerOn) {
-       console.log('boservable compelte d - ', message);
+       console.log('observable completed - ', message);
      }
   }
 );

@@ -11,7 +11,7 @@ import { CourseService } from '../services/course-service';
 import { ICourse } from '../models/course';
 import { ISubject } from '../models/subject';
 import { Result } from '../models/rule';
-import {  IFaculty, Faculty } from '../models/faculty';
+import { IFaculty, Faculty } from '../models/faculty';
 
 //TODO filter courses by  level / subject
 
@@ -35,7 +35,7 @@ private results: Result[];
   private totalPoints: number = 0;
   private courseAdded$: ReplaySubject<any> = new ReplaySubject();
   private couseRemoved$: ReplaySubject<any> = new ReplaySubject();
-  private allCourses$: FirebaseListObservable<ICourse[]>;
+  private allCourses$: Observable<ICourse[]>;
   private allCourses: ICourse[];
   private filteredCourses: ICourse[];
   private subjectSelected$: ReplaySubject<any> = new ReplaySubject();
@@ -45,13 +45,16 @@ private results: Result[];
 
   private chosenLevel = undefined;
   private chosenSubject = undefined;
-  private chosenFaculty = undefined;
+  private chosenFaculty: IFaculty = undefined;
 
   constructor(private fb: FormBuilder, private courseService: CourseService) {
     let component = this;
 
     // set up observables
-    this.allCourses = this.courseService.getAllCourses();
+    this.allCourses$ = this.courseService.getCourses()
+    .do( (courses) => {
+      debugger;
+    });
    // let filteredByLevel$ = this.levelSelected$.switchMap(level => this.filterCourses(level, undefined));
    // let filteredBySubject$ = this.subjectSelected$.switchMap(subject => this.filterCourses(undefined, subject));
    // this.filteredCourses$ = Observable.merge(filteredByLevel$, filteredBySubject$);
@@ -77,6 +80,8 @@ private results: Result[];
       component.chosenFaculty = data.faculty;
     
       console.log("faculty Set");
+
+      this.courseService.setFaculty(this.chosenFaculty);
     }
     if (component.lastFormValue.level != data.level) {
       component.chosenLevel = data.level;
@@ -169,7 +174,7 @@ private results: Result[];
        
 
        let byFaculty = this.allCourses.filter(course => {
-          return course.faculty === component.chosenFaculty;
+          return course.faculty === component.chosenFaculty.name;
         });
 
         let bySubject = byFaculty.filter(course => {

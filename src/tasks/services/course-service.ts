@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AuthProviders, AuthMethods, FirebaseAuthState, } from 'angularfire2';
 import { AngularFire, FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2';
-import { Observable } from 'rxjs/Observable';
+import { Observable  } from 'rxjs/Observable';
+import { Subject as OSubject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/every';
 import { ICourse } from '../models/course';
@@ -21,12 +22,35 @@ export class CourseService {
 
   private courses: ICourse[] = [];
 
+  private filterFaculty: OSubject<string> = new OSubject<string>();
+
   constructor(private af: AngularFire) {
 
+    //this.populateSubjects();
+
   }
+
+  setFaculty(faculty: IFaculty)
+  {
+    debugger;
+    this.filterFaculty.next(faculty.name);
+  }
+  getCourses() : Observable<any[]>
+  {
+      return this.af.database.list(this.COURSES, { 
+       query: {
+        orderByChild: 'faculty',
+        equalTo: this.filterFaculty 
+      }});
+  }
+
   // this needs to be a query, based upon 
   getAllCourses(): ICourse[] {
-
+    //as per this video, we can use a query, where the query is an Observable
+    //the first observable will not fire until the query one does,
+    //at this point we can load by, say faculty
+    //then we can filter this by the current settings of level and subject
+    //https://www.youtube.com/watch?v=oLG5TXLeuHQ
     if(this.courses.length == 0)
     {
          let courses$ = this.af.database.list(this.COURSES);
@@ -47,32 +71,26 @@ export class CourseService {
     return this.courses
  }
 
- getCourseForFaculty(){
+  // getCourses(subject: string): FirebaseListObservable<ICourse[]> {
+  //   this.course$ = this.af.database.list(this.COURSES, { 
+  //      query: {
+  //       orderByChild: 'subject',
+  //       equalTo: subject 
+  //     }});
 
- }
-
-  getCourses(subject: string): FirebaseListObservable<ICourse[]> {
-    this.course$ = this.af.database.list(this.COURSES, { 
-       query: {
-        orderByChild: 'subject',
-        equalTo: subject 
-      }});
-
-  return this.course$;
-  }
+  // return this.course$;
+  // }
 
   getSubjects(): Observable<ISubject[]> {
     //this.subjects$.every;
     this.subjects$ = this.af.database.list(this.SUBJECTS)
     .map((subjects) => { 
-      //debugger;
       subjects.sort(function(a, b){
-          if(a.$value < b.$value) return -1;
-          if(a.$value > b.$value) return 1;
+          if(a.name < b.name) return -1;
+          if(a.name > b.name) return 1;
           return 0;
       });
       return subjects.map((subject)=> {
-      //console.log(subject)
       return new Subject(subject);
     })});
     return this.subjects$;
@@ -156,16 +174,19 @@ export class CourseService {
   private populateSubjects() {
     let subs = [];
     let subjects = this.af.database.list(this.SUBJECTS);
-
-    this.course$.subscribe(snapshots => {
+     subjects.remove().then( () =>{
+  let course$ = this.af.database.list(this.COURSES);
+    course$.subscribe(snapshots => {
       snapshots.forEach(snapshot => {
-        let course = (<any>snapshot).val();
+        let course = (<any>snapshot);
         if (subs.indexOf(course.subject) == -1) {
           subs.push(course.subject);
-          subjects.push(course.subject);
+          subjects.push({ name: course.subject, faculty: course.faculty});
         }
       });
     });
+  }
+    );
   }
 
   private populateFaculties() {

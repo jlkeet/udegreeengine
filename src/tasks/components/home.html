@@ -10,7 +10,7 @@
                 <label for="faculty">Faculty</label>
                 <select name="faculty" formControlName="faculty">
                         <option [selected]="form.controls['faculty'].value == null" value="">-- Select --</option>
-                        <option *ngFor="let faculty of faculties$ | async" [ngValue]="faculty.name">  
+                        <option *ngFor="let faculty of faculties$ | async" [ngValue]="faculty">  
                             {{faculty.name}}
                         </option>
                     </select>
@@ -46,7 +46,7 @@
                 <label *ngIf="!loading" for="course">Course</label>
                 <select name="course" class="course-select" formControlName="course" disabled="{{chosenLevel == undefined}}">
                         <option value="">-- Select --</option>
-                        <option *ngFor="let course of filteredCourses; trackBy: trackCourse" [ngValue]="course">  
+                        <option *ngFor="let course of allCourses$ |async; trackBy: trackCourse" [ngValue]="course">  
                             {{course.title}} [{{course.code}}]
                         </option>
                     </select>
