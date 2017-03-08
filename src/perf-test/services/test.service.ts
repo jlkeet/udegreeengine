@@ -56,11 +56,27 @@ export class TestService {
 
   getCourses() : Observable<any[]>
   {
-      return this.af.database.list(this.COURSES, { 
+      // return this.af.database.list(this.COURSES, { 
+      //  query: {
+      //   orderByChild: 'subject',
+      //   equalTo: this.filterSubject 
+      // }});
+      //source.withLatestFrom(checkboxes, (data, checkbox) => ({data, checkbox}))
+  //.filter(({data, checkbox}) => ...)
+
+      //this works but courses is not ready until we choose level
+       return this.filterLevel.withLatestFrom(this.af.database.list(this.COURSES, { 
        query: {
         orderByChild: 'subject',
         equalTo: this.filterSubject 
-      }});
+      }}), (level, courses) => (courses).filter((course) => { return course.level === level}));
+
+      //this filtesr by the previous level selection
+      //  return this.af.database.list(this.COURSES, { 
+      //  query: {
+      //   orderByChild: 'subject',
+      //   equalTo: this.filterSubject 
+      // }}).withLatestFrom(this.filterLevel, (courses, level) => (courses).filter((course) => { return course.level === level}));      
   }
    getFaculties(): Observable<IFaculty[]> {
     this.faculties$ = this.af.database.list(this.FACULTIES, {
