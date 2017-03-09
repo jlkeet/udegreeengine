@@ -15,7 +15,7 @@ import { ISubject } from '../models/subject';
   template: `
     <h3>Courses - {{totalPoints}} pts</h3>
     <ul class="courses">
-        <li *ngFor="let c of selectedCourseList;  trackBy: trackCourse">
+        <li *ngFor="let c of selectedCourses |async;  trackBy: trackCourse">
         <span>{{c.title}} [ {{c.code}}]</span>
         <button (click)="removeCourse(c.$key)">X</button> </li>
     </ul>
@@ -43,10 +43,15 @@ export class CourseListComponent implements OnChanges, OnInit {
 
    ngOnInit() {
        let component = this;
-    this.selectedCourses.subscribe((data) => {
-      this.selectedCourseList.push(data);
-      component.totalPoints += parseInt(data.credits); // application state changed
-      component.cd.markForCheck();
+    this.selectedCourses
+         .scan((totalPoints: number,
+             courses, index) => {
+               return totalPoints += courses[index].credits;
+             },
+            0)
+            .subscribe((totalPoints) => {
+              debugger;
+       this.totalPoints = totalPoints;
     })
   }
 

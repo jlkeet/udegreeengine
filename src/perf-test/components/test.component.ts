@@ -29,7 +29,7 @@ export class TestComponent {
   allCourses$: Observable<ICourse[]>;
   faculties$: Observable<IFaculty[]>;
   subjects$: Observable<ISubject[]>;
-  selectedCourses$: Subject<ICourse> = new Subject<ICourse>();
+  selectedCourses$: Observable<ICourse[]>;
 
   levels: any[];
 
@@ -67,13 +67,14 @@ export class TestComponent {
 
     this.allCourses$ = this.testService.getCourses();
 
+    this.selectedCourses$ = this.testService.courses$;
+
 
   }
 
   public addCourse() {
-    let course = this.form.controls['course'].value;
-    this.selectedCourses$.next(new Course(course));
-
+     let course = this.form.controls['course'].value;
+     this.testService.addCourse(new Course(course));
   }
 
   public trackSubject(index, subject) {

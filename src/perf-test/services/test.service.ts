@@ -11,15 +11,26 @@ import { ISubject, Subject } from '../models/subject';
 import {  Rule, Result } from '../models/rule';
 import {  IFaculty, Faculty } from '../models/faculty';
 
+interface ICourseOperation extends Function {
+  (courses: ICourse[]): ICourse[];
+}
+
+
+
 @Injectable()
 export class TestService {
-  private course$: FirebaseListObservable<ICourse[]>;
+  newCourses: OSubject<ICourse> = new OSubject<ICourse>();
+  courses$: Observable<ICourse[]>;
+  updates: OSubject<any> = new OSubject<any>();
+  // action streams
+  create: OSubject<ICourse> = new OSubject<ICourse>();
+
   private subjects$: Observable<ISubject[]>;
   private faculties$: Observable<IFaculty[]>;
   private readonly COURSES = '/courses';
   private readonly SUBJECTS = '/subjects';
   private readonly FACULTIES = 'faculties';
-
+  private initialCourses: ICourse[] = [];
   private courses: ICourse[] = [];
 
   private filterFaculty: OSubject<string> = new OSubject<string>();
@@ -34,7 +45,40 @@ export class TestService {
     ]
   }
 
-  constructor(private af: AngularFire) {  }
+  constructor(private af: AngularFire) { 
+        this.courses$ = this.updates
+      // watch the updates and accumulate operations on the messages
+      .scan((courses: ICourse[],
+             operation: ICourseOperation) => {
+               console.log('calling updates');
+               return operation(courses);
+             },
+            this.initialCourses)
+      // make sure we can share the most recent list of messages across anyone
+      // who's interested in subscribing and cache the last known list of
+      // messages
+      .publishReplay(1)
+      .refCount();
+
+    this.create
+      .map( function(course: ICourse): ICourseOperation {
+        return (courses: ICourse[]) => {
+          console.log('calling create');
+          return courses.concat(course);
+        };
+      })
+      .subscribe(this.updates); 
+
+     this.newCourses
+      .subscribe(this.create);   
+        
+   }
+
+   addCourse(course: ICourse)
+   {
+      console.log('add course');
+      this.newCourses.next(course);
+   }
 
   setFaculty(faculty: IFaculty)
   {
@@ -56,27 +100,12 @@ export class TestService {
 
   getCourses() : Observable<any[]>
   {
-      // return this.af.database.list(this.COURSES, { 
-      //  query: {
-      //   orderByChild: 'subject',
-      //   equalTo: this.filterSubject 
-      // }});
-      //source.withLatestFrom(checkboxes, (data, checkbox) => ({data, checkbox}))
-  //.filter(({data, checkbox}) => ...)
-
       //this works but courses is not ready until we choose level
        return this.filterLevel.withLatestFrom(this.af.database.list(this.COURSES, { 
        query: {
         orderByChild: 'subject',
         equalTo: this.filterSubject 
       }}), (level, courses) => (courses).filter((course) => { return course.level === level}));
-
-      //this filtesr by the previous level selection
-      //  return this.af.database.list(this.COURSES, { 
-      //  query: {
-      //   orderByChild: 'subject',
-      //   equalTo: this.filterSubject 
-      // }}).withLatestFrom(this.filterLevel, (courses, level) => (courses).filter((course) => { return course.level === level}));      
   }
    getFaculties(): Observable<IFaculty[]> {
     this.faculties$ = this.af.database.list(this.FACULTIES, {
