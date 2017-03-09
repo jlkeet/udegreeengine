@@ -2,7 +2,7 @@
 
     <div class="mdl-selectfield">
         <label for="faculty">Faculty</label>
-       
+       <!-- when we get ng4 https://coryrylan.com/blog/angular-async-data-binding-with-ng-if-and-ng-else-->
         <select name="faculty" formControlName="faculty">
                         <!--<option [selected]="form.controls['faculty'].value == null" value="">-- Select --</option>-->
                         <option disabled value="undefined" class="hideoption">Select a Faculty</option>
@@ -13,10 +13,10 @@
     </div>
     <div class="mdl-selectfield">
         <label for="subject">Subject</label>
-         <div>{{form.controls['subject'].value?.name}}</div>
         <select name="subject" formControlName="subject">
-                        <!--<option [selected]="form.controls['subject'].value == null" value="">-- Select --</option>-->
-                        <option *ngFor="let subject of subjects$ | async" [ngValue]="subject">  
+                        <!--<option [selected]="form.controls['faculty'].value == null" value="">-- Select --</option>-->
+                        <option disabled value="undefined" class="hideoption">Select a Subject</option>
+                        <option *ngFor="let subject of subjects$ | async; trackBy: trackSubject" [ngValue]="subject">  
                             {{subject.name}}
                         </option>
                     </select>
@@ -34,7 +34,7 @@
         <label for="course">Course</label>
         <select name="course" class="course-select" formControlName="course">
                         <option value="">-- Select --</option>
-                        <option *ngFor="let course of allCourses$ |async" [ngValue]="course">  
+                        <option *ngFor="let course of allCourses$ |async; trackBy: trackCourse" [ngValue]="course">  
                             {{course.title}} [{{course.code}}]
                         </option>
                     </select>
@@ -42,3 +42,5 @@
     </div>
 
 </form>
+
+<course-list [selectedCourses]="selectedCourses$"></course-list>

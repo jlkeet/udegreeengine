@@ -5,16 +5,17 @@ import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from '../auth';
 
 import {TestComponent} from './components/test.component';
+import {CourseListComponent} from './components/course-list.component';
 import {TestService} from './services/test.service';
 
 const routes: Routes = [
   {path: 'test', component: TestComponent, canActivate: [AuthGuard]}
 ];
 
-
 @NgModule({
   declarations: [
-    TestComponent
+    TestComponent,
+    CourseListComponent
   ],
   imports: [
     CommonModule,
