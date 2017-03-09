@@ -24,6 +24,7 @@ export class TestService {
   updates: OSubject<any> = new OSubject<any>();
   // action streams
   create: OSubject<ICourse> = new OSubject<ICourse>();
+  remove: OSubject<ICourse> = new OSubject<ICourse>();
 
   private subjects$: Observable<ISubject[]>;
   private faculties$: Observable<IFaculty[]>;
@@ -69,6 +70,17 @@ export class TestService {
       })
       .subscribe(this.updates); 
 
+    this.remove
+      .map(function(course: ICourse): ICourseOperation {
+        return (courses: ICourse[]) => {
+          console.log('calling remove course');
+          let index = courses.findIndex(c => { return c.$key === course.$key});
+          courses.splice(index,1);
+          return courses;
+        };
+      })
+      .subscribe(this.updates);       
+
      this.newCourses
       .subscribe(this.create);   
         
@@ -78,6 +90,11 @@ export class TestService {
    {
       console.log('add course');
       this.newCourses.next(course);
+   }
+
+   removeCourse(course:ICourse)
+   {    console.log('remove course');
+        this.remove.next(course);
    }
 
   setFaculty(faculty: IFaculty)

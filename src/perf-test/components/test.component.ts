@@ -77,6 +77,11 @@ export class TestComponent {
      this.testService.addCourse(new Course(course));
   }
 
+  public removeCourse(course: ICourse)
+  {
+      this.testService.removeCourse(course);
+  }
+
   public trackSubject(index, subject) {
     return subject ? subject.name : undefined;
   }

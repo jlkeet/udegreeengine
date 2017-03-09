@@ -43,4 +43,4 @@
 
 </form>
 
-<course-list [selectedCourses]="selectedCourses$"></course-list>
+<course-list [selectedCourses]="selectedCourses$" (onRemoveCourse)="removeCourse($event)"></course-list>

@@ -1,5 +1,5 @@
-import { Component , Input, SimpleChanges, OnChanges, OnInit, } from '@angular/core';
-import  { ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { TestService } from '../services/test.service';
@@ -10,52 +10,48 @@ import { ISubject } from '../models/subject';
 @Component({
   selector: 'course-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [ `
+  styles: [`
   `],
   template: `
     <h3>Courses - {{totalPoints}} pts</h3>
     <ul class="courses">
         <li *ngFor="let c of selectedCourses |async;  trackBy: trackCourse">
         <span>{{c.title}} [ {{c.code}}]</span>
-        <button (click)="removeCourse(c.$key)">X</button> </li>
+        <button (click)="removeCourse(c)">X</button> </li>
     </ul>
   `
 })
 
-export class CourseListComponent implements OnChanges, OnInit {
+export class CourseListComponent implements OnInit {
   @Input() selectedCourses: Observable<ICourse>;
+  @Output() onRemoveCourse = new EventEmitter();
   totalPoints: number = 0;
-  selectedCourseCount: number = 0;
-  selectedCourseList: ICourse[] = [];
-
 
   constructor(private cd: ChangeDetectorRef) {
-      let component = this;
+    let component = this;
   }
 
   trackCourse(index, course) {
     return course ? course.code : undefined;
   }
 
-  removeCourse(key: any) {
-      alert('will remove');
+  removeCourse(course: ICourse) {
+    this.onRemoveCourse.emit(course);
   }
 
-   ngOnInit() {
-       let component = this;
+  ngOnInit() {
     this.selectedCourses
-         .scan((totalPoints: number,
-             courses, index) => {
-               return totalPoints += courses[index].credits;
-             },
-            0)
-            .subscribe((totalPoints) => {
-              debugger;
-       this.totalPoints = totalPoints;
-    })
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-       this.totalPoints = 0;
+      // each time course list changes, calculate the new total points count
+      .scan((totalPoints: number, courses) => {
+        totalPoints = 0;
+        courses.forEach(c => {
+            totalPoints += parseInt(c.credits);
+        })
+        return totalPoints;
+      },
+      0)
+      .subscribe((totalPoints) => {
+        this.totalPoints = totalPoints;
+      });
   }
 }

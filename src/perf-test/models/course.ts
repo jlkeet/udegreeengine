@@ -25,7 +25,7 @@ export class Course implements ICourse {
   requirementGroup: number;
 
   constructor(course: any) {
-      this.$key = course.key;
+      this.$key = course.$key;
       this.subject = course.subject;
       this.catalogNumber = course.catalogNumber;
       this.code = course.code;
