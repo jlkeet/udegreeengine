@@ -57,6 +57,7 @@ export class TestComponent {
         console.log("level Set");
         this.testService.setLevel(data.level);
       }
+      component.lastFormValue = data;
     });
 
     this.levels = this.testService.getLevels();
@@ -67,7 +68,7 @@ export class TestComponent {
 
     this.allCourses$ = this.testService.getCourses();
 
-    this.selectedCourses$ = this.testService.courses$;
+    this.selectedCourses$ = this.testService.selectedCourses$;
 
 
   }

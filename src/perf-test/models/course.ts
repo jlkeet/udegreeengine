@@ -4,7 +4,7 @@ export interface ICourse {
   catalogNumber: string;
   code: string;
   faculty: string;
-  level: string;
+  level: number;
   title: string;
   description: string;
   credits: string;
@@ -18,7 +18,7 @@ export class Course implements ICourse {
   code: string;
   faculty: string;
   courseCode: string;
-  level: string;
+  level: number;
   title: string;
   description: string;
   credits: string;

@@ -44,6 +44,7 @@ export class CourseListComponent implements OnInit {
       // each time course list changes, calculate the new total points count
       .scan((totalPoints: number, courses) => {
         totalPoints = 0;
+        //todo why error?
         courses.forEach(c => {
             totalPoints += parseInt(c.credits);
         })
