@@ -1,46 +1,54 @@
-<form [formGroup]="form">
+<label>Bachelor of Architectural Studies - BAS</label>
+<div class="container">
+    <div class="column">
+        <form [formGroup]="form">
 
-    <div class="mdl-selectfield">
-        <label for="faculty">Faculty</label>
-       <!-- when we get ng4 https://coryrylan.com/blog/angular-async-data-binding-with-ng-if-and-ng-else-->
-        <select name="faculty" formControlName="faculty">
+            <div class="mdl-selectfield">
+                <label for="faculty">Faculty</label>
+                <!-- when we get ng4 https://coryrylan.com/blog/angular-async-data-binding-with-ng-if-and-ng-else-->
+                <select name="faculty" formControlName="faculty">
                         <!--<option [selected]="form.controls['faculty'].value == null" value="">-- Select --</option>-->
                         <option disabled value="undefined" class="hideoption">Select a Faculty</option>
                         <option *ngFor="let faculty of faculties$ | async" [ngValue]="faculty">  
                             {{faculty.name}}
                         </option>
                     </select>
-    </div>
-    <div class="mdl-selectfield">
-        <label for="subject">Subject</label>
-        <select name="subject" formControlName="subject">
+            </div>
+            <div class="mdl-selectfield">
+                <label for="subject">Subject</label>
+                <select name="subject" formControlName="subject">
                         <!--<option [selected]="form.controls['faculty'].value == null" value="">-- Select --</option>-->
                         <option disabled value="undefined" class="hideoption">Select a Subject</option>
                         <option *ngFor="let subject of subjects$ | async; trackBy: trackSubject" [ngValue]="subject">  
                             {{subject.name}}
                         </option>
                     </select>
-    </div>
-    <div class="mdl-selectfield">
-        <label for="level">Level</label>
-        <select name="level" formControlName="level">
+            </div>
+            <div class="mdl-selectfield">
+                <label for="level">Level</label>
+                <select name="level" formControlName="level">
                         <!--<option [selected]="form.controls['subject'].value == null" value="">-- Select --</option>-->
                         <option *ngFor="let level of levels" [ngValue]="level">  
                             {{level.name}}
                         </option>
                     </select>
-    </div>    
-    <div>
-        <label for="course">Course</label>
-        <select name="course" class="course-select" formControlName="course">
+            </div>
+            <div>
+                <label for="course">Course</label>
+                <select name="course" class="course-select" formControlName="course">
                         <option value="">-- Select --</option>
                         <option *ngFor="let course of allCourses$ |async; trackBy: trackCourse" [ngValue]="course">  
                             {{course.title}} [{{course.code}}]
                         </option>
                     </select>
-        <button (click)="addCourse()">Add</button>
+                <button (click)="addCourse()">Add</button>
+            </div>
+
+        </form>
+
+        <course-list [selectedCourses]="selectedCourses$" (onRemoveCourse)="removeCourse($event)"></course-list>
     </div>
-
-</form>
-
-<course-list [selectedCourses]="selectedCourses$" (onRemoveCourse)="removeCourse($event)"></course-list>
+    <div class="column">
+        <error-list [errors]="errors$"></error-list>
+    </div>
+</div>

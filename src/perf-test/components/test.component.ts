@@ -4,15 +4,19 @@ import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 
 import { TestService } from '../services/test.service';
+import { InitService } from '../services/ini.service';
 import { ICourse, Course } from '../models/course';
 import { IFaculty } from '../models/faculty';
 import { ISubject } from '../models/subject';
+import { Result } from '../models/rule';
 
 //http://blog.angular-university.io/how-to-build-angular2-apps-using-rxjs-observable-data-services-pitfalls-to-avoid/
 
 @Component({
   selector: 'test',
   styles: [`
+  .container { display: flex;  }
+  .column { margin: 5px; padding: 5px; border: 1px solid #999; display: flex; flex: 1; flex-direction: column;}
   label { 
     min-width: 100px!important;
     display: inline-block;
@@ -29,11 +33,12 @@ export class TestComponent {
   allCourses$: Observable<ICourse[]>;
   faculties$: Observable<IFaculty[]>;
   subjects$: Observable<ISubject[]>;
+  errors$: Observable<Result[]>;
   selectedCourses$: Observable<ICourse[]>;
 
   levels: any[];
 
-  constructor(private fb: FormBuilder, private testService: TestService) {
+  constructor(private fb: FormBuilder, private testService: TestService, private initService: InitService) {
 
     this.form = this.fb.group({
       faculty: [null, Validators.required],
@@ -69,6 +74,8 @@ export class TestComponent {
     this.allCourses$ = this.testService.getCourses();
 
     this.selectedCourses$ = this.testService.selectedCourses$;
+
+    this.errors$ = this.testService.errors$;
 
 
   }

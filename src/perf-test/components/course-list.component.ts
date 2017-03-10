@@ -11,6 +11,7 @@ import { ISubject } from '../models/subject';
   selector: 'course-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
+  ul li { list-style: none; font-size: 11px; }
   `],
   template: `
     <h3>Courses - {{totalPoints}} pts</h3>

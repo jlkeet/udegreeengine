@@ -6,7 +6,14 @@ import { AuthGuard } from '../auth';
 
 import {TestComponent} from './components/test.component';
 import {CourseListComponent} from './components/course-list.component';
+import { ErrorListComponent }from './components/error-list.component';
 import {TestService} from './services/test.service';
+import  {InitService } from './services/ini.service';
+
+import { ICourse } from './models/course';
+import { ISubject, Subject } from './models/subject';
+import { Rule, IRule, Result } from './models/rule';
+import { IFaculty, Faculty } from './models/faculty';
 
 const routes: Routes = [
   {path: 'test', component: TestComponent, canActivate: [AuthGuard]}
@@ -15,7 +22,8 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     TestComponent,
-    CourseListComponent
+    CourseListComponent,
+    ErrorListComponent
   ],
   imports: [
     CommonModule,
@@ -24,9 +32,11 @@ const routes: Routes = [
     RouterModule.forChild(routes)
   ],
   providers: [
-    TestService
+    TestService,
+    InitService
   ]
 })
 
 export class TestsModule {}
+export { Rule, IRule } 
 

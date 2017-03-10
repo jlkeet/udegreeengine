@@ -8,7 +8,7 @@ import 'rxjs/add/operator/every';
 
 import { ICourse } from '../models/course';
 import { ISubject, Subject } from '../models/subject';
-import { Rule, Result } from '../models/rule';
+import { Rule, Result, IRule } from '../models/rule';
 import { IFaculty, Faculty } from '../models/faculty';
 
 interface ICourseOperation extends Function {
@@ -25,24 +25,33 @@ export class TestService {
   updates: OSubject<any> = new OSubject<any>();
   create: OSubject<ICourse> = new OSubject<ICourse>();
   remove: OSubject<ICourse> = new OSubject<ICourse>();
+
   //availalble courses
   allCourses$: Observable<ICourse[]>;
-  availableCourses$: Observable<ICourse[]>;
-  filters: OSubject<any> = new OSubject<any>();
   filterAvailableByLevel: OSubject<ICourse> = new OSubject<ICourse>();
+
+  //Errors
+  allRules$ : Observable<IRule[]>;
+  checkrules: OSubject<any> = new OSubject<any>();
+  errors$: Observable<Result[]>;
 
   private subjects$: Observable<ISubject[]>;
   private faculties$: Observable<IFaculty[]>;
-  private readonly COURSES = '/courses';
-  private readonly SUBJECTS = '/subjects';
-  private readonly FACULTIES = 'faculties';
+    private readonly COURSES = '/courses';
+    private readonly SUBJECTS = '/subjects';
+    private readonly FACULTIES = '/faculties';
+    private readonly DEGREES = '/degrees';
+    private readonly RULES = '/rules';
   private initialCourses: ICourse[] = [];
   private initialCourseList: ICourse[] = [];
   private courses: ICourse[] = [];
 
+
+private rules: IRule[] = [];
   private filterFaculty: OSubject<string> = new OSubject<string>();
   private filterSubject: OSubject<string> = new OSubject<string>();
   private filterLevel: OSubject<number> = new OSubject<number>();
+  private filterDegree: OSubject<string> = new OSubject<string>();
 
   getLevels(): any[] {
     return [
@@ -63,13 +72,14 @@ export class TestService {
         return operation(courses);
       },
       this.initialCourses)
-      // make sure we can share the most recent list of messages across anyone
+      // make sure we can share the most recent list of courses across anyone
       // who's interested in subscribing and cache the last known list of
-      // messages
+      // courses. To ensure that combineLatest first, intialise this observable with empty []
       .publishReplay(1)
       .refCount()
       .startWith([]);
 
+    // defines the create operation (concat) updates will fire
     this.create
       .map(function (course: ICourse): ICourseOperation {
         return (courses: ICourse[]) => {
@@ -89,35 +99,66 @@ export class TestService {
       })
       .subscribe(this.updates);
 
+    // when next is called on newCourses, create will fire with course as param
     this.newCourses
       .subscribe(this.create);
+   
 
-    // AVAILABLE COURSES
-    //   this.availableCourses$ = this.filters
-    //   // watch the updates and accumulate operations on the messages
-    //   .scan((courses: ICourse[],
-    //          operation: ICourseOperation) => {
-    //            console.log('calling filters');
-    //            return operation(courses);
-    //          },
-    //         this.allCourses$)
-    //   // make sure we can share the most recent list of messages across anyone
-    //   // who's interested in subscribing and cache the last known list of
-    //   // messages
-    //   .publishReplay(1)
-    //   .refCount();
+    this.allRules$ = this.getRules().
+      map( rules => {
+        return rules.map( r => {
+          return new Rule(r);
+        })
+      })
+      this.allRules$.subscribe(rules => {
+this.rules = rules;
+      });
 
-    //  this.filterAvailableByLevel
-    //   .filter( function(level: string)  {
-    //     return (courses: ICourse[]) => {
-    //       console.log('calling filter by level');
-    //       return courses.filter( c => {
-    //         return c.level === level;
-    //       });
-    //     };
-    //   })
-    //   .subscribe(this.filters);
+      //currently we always use this degree
+      this.filterDegree.next('B1');
 
+
+ this.errors$ = this.selectedCourses$
+       .scan(
+         //accumulator
+         
+         (results: Result[], courses: ICourse[]) => {
+          console.log('checking rules');
+        return this.checkRules(courses, this.rules);
+        
+      },  
+      //seed
+      []);
+      //.do( r => console.log(r));
+
+      // .map(courses => { 
+      //   console.log("checking rules");
+      //   let errors =  this.checkRules(courses, this.rules)
+      //   console.log(errors);
+      //   return errors;
+      // });
+
+//  const errors = this.selectedCourses$.combineLatest(this.allRules$)
+//       .map(data => { 
+//         console.log("checking rules");
+//         let rules = data[0];
+//         let courses = data[1];
+//         return this.checkRules(rules, courses)
+//       });
+
+      //errors.subscribe( r  => console.log(r));
+
+  }
+
+  checkRules(courses :ICourse[], rules: IRule[]) {
+     //check list of selected courses against all Rules
+     // A rule needs to return TRUE/ FALSE and if false an error message(s)
+     let results:  Result[] = [];
+     rules.forEach((rule) => {
+
+       results = results.concat(rule.evaluate(courses));
+     });
+     return results;
   }
 
   addCourse(course: ICourse) {
@@ -162,6 +203,7 @@ export class TestService {
     // and remove any courses that have already been selected
     const withoutSelected = filteredByLevel.combineLatest(this.selectedCourses$)
       .map(courses => {
+        console.log('rereshing courses');
         let available = courses[0];
         let selected = courses[1];
         return available.filter(c => {
@@ -170,6 +212,18 @@ export class TestService {
       });
 
     return withoutSelected;
+  }
+
+  getRules(): Observable<IRule[]>
+  {
+    this.allRules$ = this.af.database.list(this.RULES, {
+      query: {
+        orderByChild: 'degree',
+        equalTo: this.filterDegree
+      }
+    });
+    return this.allRules$;
+
   }
   getFaculties(): Observable<IFaculty[]> {
     this.faculties$ = this.af.database.list(this.FACULTIES, {
