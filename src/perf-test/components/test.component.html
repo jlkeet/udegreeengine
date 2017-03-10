@@ -2,7 +2,7 @@
 <div class="container">
     <div class="column">
         <form [formGroup]="form">
-
+            <div *ngIf="loading" class="loading-shield">Loading</div>
             <div class="mdl-selectfield">
                 <label for="faculty">Faculty</label>
                 <!-- when we get ng4 https://coryrylan.com/blog/angular-async-data-binding-with-ng-if-and-ng-else-->
@@ -46,9 +46,17 @@
 
         </form>
 
-        <course-list [selectedCourses]="selectedCourses$" (onRemoveCourse)="removeCourse($event)"></course-list>
+
     </div>
     <div class="column">
         <error-list [errors]="errors$"></error-list>
     </div>
+</div>
+<div class="container">
+    <div class="column">
+        <course-list [selectedCourses]="selectedCourses$" (onRemoveCourse)="removeCourse($event)"></course-list>
+    </div>
+
+
+
 </div>

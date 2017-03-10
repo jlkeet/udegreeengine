@@ -16,10 +16,23 @@ import { Result } from '../models/rule';
   selector: 'test',
   styles: [`
   .container { display: flex;  }
-  .column { margin: 5px; padding: 5px; border: 1px solid #999; display: flex; flex: 1; flex-direction: column;}
+  .column { margin: 5px; padding: 5px; border: 1px solid #999; display: flex; flex: 1; flex-direction: column; max-width:49%;}
   label { 
     min-width: 100px!important;
     display: inline-block;
+  }
+  form { position:relative; }
+  .loading-shield {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    background: rebeccapurple;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.9;
   }
   select { min-width: 250px;}
   .hideoption { display:none; visibility:hidden; height:0; font-size:0; }
@@ -35,7 +48,7 @@ export class TestComponent {
   subjects$: Observable<ISubject[]>;
   errors$: Observable<Result[]>;
   selectedCourses$: Observable<ICourse[]>;
-
+  loading: boolean = true;
   levels: any[];
 
   constructor(private fb: FormBuilder, private testService: TestService, private initService: InitService) {
@@ -50,16 +63,13 @@ export class TestComponent {
     let component = this;
     this.form.valueChanges.subscribe(data => {
       if (component.lastFormValue.faculty != data.faculty) {
-        console.log("faculty Set");
-        //for Arts it takes 5 seconds to run this query (index on faculty)
+        this.loading = true;
         this.testService.setFaculty(data.faculty);
       }
       if (component.lastFormValue.subject != data.subject) {
-        console.log("subject Set");
         this.testService.setSubject(data.subject);
       }
       if (component.lastFormValue.level != data.level) {
-        console.log("level Set");
         this.testService.setLevel(data.level);
       }
       component.lastFormValue = data;
@@ -67,9 +77,13 @@ export class TestComponent {
 
     this.levels = this.testService.getLevels();
 
-    this.faculties$ = this.testService.getFaculties();
+    this.faculties$ = this.testService.getFaculties().do( () => {
+      this.loading = false;
+    });;;
 
-    this.subjects$ = this.testService.getsSubjects();
+    this.subjects$ = this.testService.getsSubjects().do( () => {
+      this.loading = false;
+    });;
 
     this.allCourses$ = this.testService.getCourses();
 

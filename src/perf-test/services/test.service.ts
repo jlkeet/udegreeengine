@@ -31,23 +31,23 @@ export class TestService {
   filterAvailableByLevel: OSubject<ICourse> = new OSubject<ICourse>();
 
   //Errors
-  allRules$ : Observable<IRule[]>;
+  allRules$: Observable<IRule[]>;
   checkrules: OSubject<any> = new OSubject<any>();
   errors$: Observable<Result[]>;
 
   private subjects$: Observable<ISubject[]>;
   private faculties$: Observable<IFaculty[]>;
-    private readonly COURSES = '/courses';
-    private readonly SUBJECTS = '/subjects';
-    private readonly FACULTIES = '/faculties';
-    private readonly DEGREES = '/degrees';
-    private readonly RULES = '/rules';
+  private readonly COURSES = '/courses';
+  private readonly SUBJECTS = '/subjects';
+  private readonly FACULTIES = '/faculties';
+  private readonly DEGREES = '/degrees';
+  private readonly RULES = '/rules';
   private initialCourses: ICourse[] = [];
   private initialCourseList: ICourse[] = [];
   private courses: ICourse[] = [];
 
 
-private rules: IRule[] = [];
+  private rules: IRule[] = [];
   private filterFaculty: OSubject<string> = new OSubject<string>();
   private filterSubject: OSubject<string> = new OSubject<string>();
   private filterLevel: OSubject<number> = new OSubject<number>();
@@ -68,7 +68,6 @@ private rules: IRule[] = [];
       // watch the updates and accumulate operations on the messages
       .scan((courses: ICourse[],
         operation: ICourseOperation) => {
-        console.log('calling updates');
         return operation(courses);
       },
       this.initialCourses)
@@ -91,7 +90,6 @@ private rules: IRule[] = [];
     this.remove
       .map(function (course: ICourse): ICourseOperation {
         return (courses: ICourse[]) => {
-          console.log('calling remove course');
           let index = courses.findIndex(c => { return c.$key === course.$key });
           courses.splice(index, 1);
           return courses;
@@ -102,63 +100,41 @@ private rules: IRule[] = [];
     // when next is called on newCourses, create will fire with course as param
     this.newCourses
       .subscribe(this.create);
-   
+
 
     this.allRules$ = this.getRules().
-      map( rules => {
-        return rules.map( r => {
+      map(rules => {
+        return rules.map(r => {
           return new Rule(r);
         })
       })
-      this.allRules$.subscribe(rules => {
-this.rules = rules;
-      });
+    this.allRules$.subscribe(rules => {
+      this.rules = rules;
+    });
 
-      //currently we always use this degree
-      this.filterDegree.next('B1');
+    //currently we always use this degree
+    this.filterDegree.next('B1');
 
 
- this.errors$ = this.selectedCourses$
-       .scan(
-         //accumulator
-         
-         (results: Result[], courses: ICourse[]) => {
-          console.log('checking rules');
+    this.errors$ = this.selectedCourses$
+      .scan(
+      //accumulator
+      (results: Result[], courses: ICourse[]) => {
         return this.checkRules(courses, this.rules);
-        
-      },  
+      },
       //seed
       []);
-      //.do( r => console.log(r));
-
-      // .map(courses => { 
-      //   console.log("checking rules");
-      //   let errors =  this.checkRules(courses, this.rules)
-      //   console.log(errors);
-      //   return errors;
-      // });
-
-//  const errors = this.selectedCourses$.combineLatest(this.allRules$)
-//       .map(data => { 
-//         console.log("checking rules");
-//         let rules = data[0];
-//         let courses = data[1];
-//         return this.checkRules(rules, courses)
-//       });
-
-      //errors.subscribe( r  => console.log(r));
-
   }
 
-  checkRules(courses :ICourse[], rules: IRule[]) {
-     //check list of selected courses against all Rules
-     // A rule needs to return TRUE/ FALSE and if false an error message(s)
-     let results:  Result[] = [];
-     rules.forEach((rule) => {
+  checkRules(courses: ICourse[], rules: IRule[]) {
+    //check list of selected courses against all Rules
+    // A rule needs to return TRUE/ FALSE and if false an error message(s)
+    let results: Result[] = [];
+    rules.forEach((rule) => {
 
-       results = results.concat(rule.evaluate(courses));
-     });
-     return results;
+      results = results.concat(rule.evaluate(courses));
+    });
+    return results;
   }
 
   addCourse(course: ICourse) {
@@ -194,10 +170,11 @@ this.rules = rules;
     // combine the latest emit from allCourses$ AND selectedCourses$    
     // and remove any courses not at the selected level
     const filteredByLevel = this.allCourses$.combineLatest(this.filterLevel)
-      .map(data => { 
+      .map(data => {
         let courses = data[0];
         let level = data[1];
-        return courses.filter(c => c.level === level) });
+        return courses.filter(c => c.level === level)
+      });
 
     // combine the latest emit from filteredByLevel AND selectedCourses$
     // and remove any courses that have already been selected
@@ -214,8 +191,7 @@ this.rules = rules;
     return withoutSelected;
   }
 
-  getRules(): Observable<IRule[]>
-  {
+  getRules(): Observable<IRule[]> {
     this.allRules$ = this.af.database.list(this.RULES, {
       query: {
         orderByChild: 'degree',
