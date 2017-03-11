@@ -38,7 +38,8 @@ export class InitService {
             rules.push({ degree: 'B1', ruleid: 'B12', type: 1, courses: ['ARCHDES 200', 'ARCHDRC 202', 'ARCHTECH 207', 'ARCHHTC 235', 'ARCHDES 201', 'ARCHTECH 208', 'ARCHHTC 236']  });
             rules.push({ degree: 'B1', ruleid: 'B13', type: 1, courses: ['ARCHDES 300', 'ARCHHTC 340', 'ARCHTECH 307', 'ARCHDES 301', 'ARCHHTC 339', 'ARCHTECH 312', 'ARCHPRM 304']  });
             rules.push({ degree: 'B1', ruleid: 'B14', type: 2, courses: ['ARCHDRC 300','ARCHDRC 301','ARCHDRC 302','ARCHDRC 303','ARCHDRC 304','ARCHDRC 370','ARCHDRC 371','ARCHDRC 372','ARCHDRC 373']  });
-            rules.push({ degree: 'B1', ruleid: 'B15', type: 3, courses: ['ARCHDES 200',  'ARCHTECH 207'], credits: 30  });
+            rules.push({ degree: 'B1', ruleid: 'B15', type: 3, courses: ['ARCHDES 200',  'ARCHTECH 207', 'ARCHTECH 208'], credits: 30  });
+            rules.push({ degree: 'B1', ruleid: 'B16', type: 4, groups: [['ARCHDES 200',  'ARCHTECH 207'], ['ARCHTECH 208', 'ARCHDRC 302'], ['ARCHHTC 235', 'ARCHDES 201']], credits: 15  });
 
         });
     }    
