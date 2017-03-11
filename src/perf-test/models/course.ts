@@ -7,7 +7,7 @@ export interface ICourse {
   level: number;
   title: string;
   description: string;
-  credits: string;
+  credits: number;
   requirementGroup: number;
 }
 
@@ -21,7 +21,7 @@ export class Course implements ICourse {
   level: number;
   title: string;
   description: string;
-  credits: string;
+  credits: number;
   requirementGroup: number;
 
   constructor(course: any) {
