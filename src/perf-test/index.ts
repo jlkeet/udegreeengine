@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from '../auth';
+import { EngineRoutingModule } from './engine-routing';
 
 import {TestComponent} from './components/test.component';
 import {CourseListComponent} from './components/course-list.component';
@@ -15,9 +16,7 @@ import { ISubject, Subject } from './models/subject';
 import { Rule, IRule, Result } from './models/rule';
 import { IFaculty, Faculty } from './models/faculty';
 
-const routes: Routes = [
-  {path: 'test', component: TestComponent, canActivate: [AuthGuard]}
-];
+
 
 @NgModule({
   declarations: [
@@ -29,7 +28,7 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule.forChild(routes)
+    EngineRoutingModule
   ],
   providers: [
     TestService,
