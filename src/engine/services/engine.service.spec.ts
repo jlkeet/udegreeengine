@@ -1,15 +1,15 @@
 import { TestBed, async, inject } from '@angular/core/testing';
 import { AngularFire, FirebaseListObservable, FirebaseObjectObservable } from 'angularfire2';
-import { TestService } from './test.service';
+import { EngineService } from './engine.service';
 
 // describe('Service: Test', () => {
 //   beforeEach(() => {
 //     TestBed.configureTestingModule({
-//       providers: [TestService, AngularFire]
+//       providers: [EngineService, AngularFire]
 //     });
 //   });
 
-//   it('should ...', inject([TestService], (service: TestService) => {
+//   it('should ...', inject([EngineService], (service: EngineService) => {
 //     expect(service).toBeTruthy();
 //   }));
 // });

@@ -5,12 +5,13 @@ import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from '../auth';
 import { EngineRoutingModule } from './engine-routing';
 
-import {TestComponent} from './components/test.component';
+import {TestComponent} from './components/engine.component';
 import {CourseListComponent} from './components/course-list.component';
 import { ErrorListComponent }from './components/error-list.component';
-import {TestService} from './services/test.service';
+import {EngineService} from './services/engine.service';
 import  {InitService } from './services/ini.service';
-
+import  {TotalPointsComponent } from './components/total-points.component';
+import { SemesterCourseListComponent } from './components/semester-course-list';
 import { ICourse } from './models/course';
 import { ISubject, Subject } from './models/subject';
 import { Rule, IRule, Result } from './models/rule';
@@ -22,7 +23,9 @@ import { IFaculty, Faculty } from './models/faculty';
   declarations: [
     TestComponent,
     CourseListComponent,
-    ErrorListComponent
+    ErrorListComponent,
+    TotalPointsComponent,
+    SemesterCourseListComponent
   ],
   imports: [
     CommonModule,
@@ -31,11 +34,11 @@ import { IFaculty, Faculty } from './models/faculty';
     EngineRoutingModule
   ],
   providers: [
-    TestService,
+    EngineService,
     InitService
   ]
 })
 
-export class TestsModule {}
+export class EngineModule {}
 export { Rule, IRule } 
 

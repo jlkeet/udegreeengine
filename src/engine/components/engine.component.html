@@ -1,6 +1,6 @@
 <label>Bachelor of Architectural Studies - BAS</label>
 <div class="container">
-    <div class="column">
+    <div class="column box">
         <form [formGroup]="form">
             <div *ngIf="loading" class="loading-shield">Loading</div>
             <div class="mdl-selectfield">
@@ -41,22 +41,35 @@
                             {{course.title}} [{{course.code}}]
                         </option>
                     </select>
-                <button (click)="addCourse()">Add</button>
+                
             </div>
-
+             <div *ngIf="form.controls['course'].value">
+                <label for="semester">Semester</label>
+                <select name="semester" class="semester-select" formControlName="semester">
+                        <option value="">-- Select --</option>
+                        <option *ngFor="let semester of semesters;" [ngValue]="semester">  
+                            {{semester}}
+                        </option>
+                    </select>                 
+                 <button (click)="addCourse()">Add</button>
+            </div>
         </form>
 
 
     </div>
-    <div class="column">
+    <div class="column box">
         <error-list [errors]="errors$"></error-list>
     </div>
 </div>
 <div class="container">
-    <div class="column">
-        <course-list [selectedCourses]="selectedCourses$" (onRemoveCourse)="removeCourse($event)"></course-list>
-    </div>
-
+ 
+        <div class="column box">
+        <total-points [courses]="selectedCourses$" [title]="'Total Points'"></total-points>
+     
+        <semester-course-list class="box" [courses]="selectedCourses$" [semester]="1" [title]="'Semester One'" (onRemoveCourse)="removeCourse($event)"></semester-course-list>
+        <semester-course-list class="box" [courses]="selectedCourses$" [semester]="2" [title]="'Semester Two'" (onRemoveCourse)="removeCourse($event)"></semester-course-list>
+        <semester-course-list class="box" [courses]="selectedCourses$" [semester]="3" [title]="'Semester Three'" (onRemoveCourse)="removeCourse($event)"></semester-course-list>
+</div> 
 
 
 </div>

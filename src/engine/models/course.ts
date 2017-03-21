@@ -9,6 +9,8 @@ export interface ICourse {
   description: string;
   credits: number;
   requirementGroup: number;
+  //?
+  semester: number;
 }
 
 export class Course implements ICourse {
@@ -23,6 +25,8 @@ export class Course implements ICourse {
   description: string;
   credits: number;
   requirementGroup: number;
+  //?
+  semester: number;  
 
   constructor(course: any) {
       this.$key = course.$key;
@@ -35,6 +39,8 @@ export class Course implements ICourse {
       this.description = course.description;
       this.credits = course.credits;
       this.requirementGroup = course.requirementGroup;
+      //
+      this.semester = course.semester;
    }
 
 }

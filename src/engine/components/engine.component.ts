@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 
-import { TestService } from '../services/test.service';
+import { EngineService } from '../services/engine.service';
 import { InitService } from '../services/ini.service';
 import { ICourse, Course } from '../models/course';
 import { IFaculty } from '../models/faculty';
@@ -16,7 +16,10 @@ import { Result } from '../models/rule';
   selector: 'test',
   styles: [`
   .container { display: flex;  }
-  .column { margin: 5px; padding: 5px; border: 1px solid #999; display: flex; flex: 1; flex-direction: column; max-width:49%;}
+  .column {  display: flex; flex: 1; flex-direction: column; max-width:49%;}
+  .row { width: 100%; display: flex; }
+  .box { margin: 5px; padding: 5px; border: 1px solid #999; } 
+  
   label { 
     min-width: 100px!important;
     display: inline-block;
@@ -37,7 +40,7 @@ import { Result } from '../models/rule';
   select { min-width: 250px;}
   .hideoption { display:none; visibility:hidden; height:0; font-size:0; }
   `],
-  template: require('./test.component.html')
+  template: require('./engine.component.html')
 })
 
 export class TestComponent {
@@ -50,58 +53,62 @@ export class TestComponent {
   selectedCourses$: Observable<ICourse[]>;
   loading: boolean = true;
   levels: any[];
+  semesters: any[];
 
-  constructor(private fb: FormBuilder, private testService: TestService, private initService: InitService) {
+  constructor(private fb: FormBuilder, private EngineService: EngineService, private initService: InitService) {
 
     this.form = this.fb.group({
       faculty: [null, Validators.required],
       subject: [null, Validators.required],
       course: [null, Validators.required],
-      level: [null, Validators.required]
+      level: [null, Validators.required],
+      semester: [null, Validators.required]
     });
 
     let component = this;
     this.form.valueChanges.subscribe(data => {
       if (component.lastFormValue.faculty != data.faculty) {
         this.loading = true;
-        this.testService.setFaculty(data.faculty);
+        this.EngineService.setFaculty(data.faculty);
       }
       if (component.lastFormValue.subject != data.subject) {
-        this.testService.setSubject(data.subject);
+        this.EngineService.setSubject(data.subject);
       }
       if (component.lastFormValue.level != data.level) {
-        this.testService.setLevel(data.level);
+        this.EngineService.setLevel(data.level);
       }
       component.lastFormValue = data;
     });
 
-    this.levels = this.testService.getLevels();
+    this.levels = this.EngineService.getLevels();
+    this.semesters = this.EngineService.getSemesters();
 
-    this.faculties$ = this.testService.getFaculties().do( () => {
+    this.faculties$ = this.EngineService.getFaculties().do( () => {
       this.loading = false;
-    });;;
+    });
 
-    this.subjects$ = this.testService.getsSubjects().do( () => {
+    this.subjects$ = this.EngineService.getsSubjects().do( () => {
       this.loading = false;
-    });;
+    });
 
-    this.allCourses$ = this.testService.getCourses();
+    this.allCourses$ = this.EngineService.getCourses();
 
-    this.selectedCourses$ = this.testService.selectedCourses$;
+    this.selectedCourses$ = this.EngineService.selectedCourses$;
 
-    this.errors$ = this.testService.errors$;
+    this.errors$ = this.EngineService.errors$;
 
 
   }
 
   public addCourse() {
      let course = this.form.controls['course'].value;
-     this.testService.addCourse(new Course(course));
+     let semester = this.form.controls['semester'].value;
+     this.EngineService.addCourse(semester, new Course(course));
   }
 
   public removeCourse(course: ICourse)
   {
-      this.testService.removeCourse(course);
+      this.EngineService.removeCourse(course);
   }
 
   public trackSubject(index, subject) {

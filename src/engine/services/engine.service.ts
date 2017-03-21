@@ -18,7 +18,7 @@ interface ICourseOperation extends Function {
 
 
 @Injectable()
-export class TestService {
+export class EngineService {
   //selected Courses
   newCourses: OSubject<ICourse> = new OSubject<ICourse>();
   selectedCourses$: Observable<ICourse[]>;
@@ -59,6 +59,10 @@ export class TestService {
       { id: 2, name: 'Level Two' },
       { id: 3, name: 'Level Three' }
     ]
+  }
+
+  getSemesters(): any[] {
+     return [ 1, 2, 3 ]
   }
 
   constructor(private af: AngularFire) {
@@ -137,7 +141,8 @@ export class TestService {
     return results;
   }
 
-  addCourse(course: ICourse) {
+  addCourse(semester: number, course: ICourse) {
+    course.semester = semester;
     this.newCourses.next(course);
   }
 

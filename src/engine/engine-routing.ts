@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { TestComponent } from './components/test.component';
+import { TestComponent } from './components/engine.component';
 import { AuthGuard } from '../auth';
 
 // Each routing module augments the route configuration in the order of import

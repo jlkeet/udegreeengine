@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { TestService } from '../services/test.service';
+import { EngineService } from '../services/engine.service';
 import { ICourse } from '../models/course';
 import { IFaculty } from '../models/faculty';
 import { ISubject } from '../models/subject';
