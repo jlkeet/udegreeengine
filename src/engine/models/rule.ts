@@ -4,7 +4,10 @@ export interface IRule {
   $key?: string;
   id: string;
   type: number;
+  course?: string;
   courses?: string[];
+  preerqs?: string[];
+  restrictions?:string[];
   credits?: number;
   groups?: string[][]
 
@@ -15,13 +18,19 @@ export class Rule implements IRule {
   $key?: string;
   id: string;
   type: number;
+  course?: string;
   courses?: string[];
+  preerqs?: string[];
+  restrictions?:string[];
   credits?: number;
   groups?: string[][]
 
   constructor(rule: any) {
     this.type = rule.type;
+    this.course = rule.course;
     this.courses = rule.courses;
+    this.preerqs = rule.preerqs;
+    this.restrictions = rule.restrictions;
     this.credits = rule.credits;
     this.groups = rule.groups;
   }
@@ -41,6 +50,12 @@ export class Rule implements IRule {
 
       case 4:
         return this.evaulateRuleTypeFour(courses, this.groups, this.credits);
+
+      case 5:
+        return this.evaulateRuleTypeFive(courses, this.course, this.preerqs);   
+
+      case 6:
+        return this.evaulateRuleTypeSix(courses,this.restrictions);             
     }
   }
 
@@ -109,6 +124,35 @@ export class Rule implements IRule {
     return new Result([`must select ${creditsRequired} credits from two of the following groups` + groups.toString()]);
    
   }    
+
+  private evaulateRuleTypeFive(courses: ICourse[], course:string, prereqs: string[]): Result 
+  {
+    // for this rule type, courses must have ALL courses from prereqs in semesters earlier than course
+    let plannedSemester = courses.find( c => { return c.code == course}).semester;
+
+    let missing = prereqs.filter(function (req_code) {
+      return !courses.find((c) => { 
+        return c.code == req_code && c.semester < plannedSemester  });
+    });
+    if (missing.length > 0) {
+      return new Result([`must select all of > ${prereqs} before semester ${plannedSemester}`]);
+    }
+    return new Result([]);
+  }
+
+  private evaulateRuleTypeSix(courses: ICourse[], restrictions: string[]): Result 
+  {
+    // for this rule type, courses must NOT have ANY of courses from restrictions
+
+    let found = restrictions.filter(function (req_code) {
+      return courses.find((c) => { 
+        return c.code == req_code  });
+    });
+    if (found.length > 0) {
+      return new Result([`must NOT select ANY of > ${restrictions}`]);
+    }
+    return new Result([]);
+  }  
 }
 
 export class Result {
