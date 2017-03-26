@@ -8,6 +8,7 @@ export interface IRule {
   courses?: string[];
   preerqs?: string[];
   restrictions?:string[];
+  corequisites?:string[];
   credits?: number;
   groups?: string[][]
 
@@ -22,6 +23,7 @@ export class Rule implements IRule {
   courses?: string[];
   preerqs?: string[];
   restrictions?:string[];
+  corequisites?:string[];
   credits?: number;
   groups?: string[][]
 
@@ -31,6 +33,7 @@ export class Rule implements IRule {
     this.courses = rule.courses;
     this.preerqs = rule.preerqs;
     this.restrictions = rule.restrictions;
+    this.corequisites = rule.corequisites;
     this.credits = rule.credits;
     this.groups = rule.groups;
   }
@@ -55,7 +58,10 @@ export class Rule implements IRule {
         return this.evaulateRuleTypeFive(courses, this.course, this.preerqs);   
 
       case 6:
-        return this.evaulateRuleTypeSix(courses,this.restrictions);             
+        return this.evaulateRuleTypeSix(courses,this.restrictions);  
+
+      case 7:
+        return this.evaulateRuleTypeSeven(courses, this.course, this.corequisites);                        
     }
   }
 
@@ -153,6 +159,21 @@ export class Rule implements IRule {
     }
     return new Result([]);
   }  
+
+  private evaulateRuleTypeSeven(courses: ICourse[], course: string, corequisites: string[])
+  {
+      let plannedSemester = courses.find( c => { return c.code == course}).semester;
+ 
+      let coReqsPlannedInSameSemester = corequisites.filter(function (req_code) {
+      return courses.find((c) => { 
+        return c.code == req_code && c.semester === plannedSemester  });
+    });
+
+    if (coReqsPlannedInSameSemester.length === 0) {
+      return new Result([`must select AT least on of > ${corequisites} in semsester ${plannedSemester}`]);
+    }
+      return new Result([]);
+  }
 }
 
 export class Result {
