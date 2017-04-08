@@ -6,8 +6,8 @@ import { AuthGuard } from '../auth';
 
 import { EngineUIRoutingModule } from './engine-ui-routing';
 
-import { TestComponent} from './components/engine.component';
-import { CourseListComponent} from './components/course-list.component';
+import { EngineComponent} from './components/engine.component';
+//import { CourseListComponent} from './components/course-list.component';
 import { ErrorListComponent }from './components/error-list.component';
 import { TotalPointsComponent } from './components/total-points.component';
 import { SemesterCourseListComponent } from './components/semester-course-list';
@@ -17,8 +17,7 @@ import { CourseSelectFormComponent } from './components/course-select-form';
 
 @NgModule({
   declarations: [
-    TestComponent,
-    CourseListComponent,
+    EngineComponent,
     ErrorListComponent,
     TotalPointsComponent,
     SemesterCourseListComponent,

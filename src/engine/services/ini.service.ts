@@ -3,7 +3,8 @@ import { AngularFire, FirebaseListObservable, FirebaseObjectObservable } from 'a
 
 import { ICourse } from '../models/course';
 import { ISubject, Subject } from '../models/subject';
-import { Rule, Result, IRule } from '../models/rule';
+import { Result, IRule } from '../index';
+import { Rule } from '../models/rule';
 import { Degree } from '../models/degree';
 import { IFaculty, Faculty } from '../models/faculty';
 

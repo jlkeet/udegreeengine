@@ -8,7 +8,8 @@ import 'rxjs/add/operator/every';
 
 import { ICourse } from '../models/course';
 import { ISubject, Subject } from '../models/subject';
-import { Rule, Result, IRule } from '../models/rule';
+import { Result, IRule } from '../index';
+import { Rule } from '../models/rule'
 import { IFaculty, Faculty } from '../models/faculty';
 
 interface ICourseOperation extends Function {
@@ -109,7 +110,7 @@ export class EngineService {
     this.allRules$ = this.getRules().
       map(rules => {
         return rules.map(r => {
-          return new Rule(r);
+          return Rule.createRule(r);
         })
       })
     this.allRules$.subscribe(rules => {   

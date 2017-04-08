@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { TestComponent } from './components/engine.component';
+import { EngineComponent } from './components/engine.component';
 import { AuthGuard } from '../auth';
 
 // Each routing module augments the route configuration in the order of import
 const routes: Routes = [
   { 
-      path: 'engine', component: TestComponent, canActivate: [AuthGuard]
+      path: 'engine', component: EngineComponent, canActivate: [AuthGuard]
     },
     { path: '', redirectTo: '/engine', pathMatch: 'full' }
 ];

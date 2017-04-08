@@ -42,31 +42,31 @@ import { ICourse, Course, IFaculty, ISubject } from '../../engine';
 })
 
 export class CourseSelectFormComponent implements OnInit {
-  
+
   @Output() onCourseAdded = new EventEmitter<ICourse>();
   @Output() onCourseRemoved = new EventEmitter<ICourse>();
 
   private form: FormGroup;
   private lastFormValue: any = {};
   private loading: boolean = true;
-  
+
   private levels: any[];
   private semesters: any[];
   private faculties$: Observable<IFaculty[]>;
   private subjects$: Observable<ISubject[]>;
   private allCourses$: Observable<ICourse[]>;
 
-  constructor(private fb: FormBuilder, private EngineService: EngineService) {  }
+  constructor(private fb: FormBuilder, private EngineService: EngineService) { }
 
   public addCourse() {
-     let course = this.form.controls['course'].value;
-     let semester = this.form.controls['semester'].value;
-     let courseModel  = new Course(course);
-     courseModel.semester = semester;
-     this.onCourseAdded.emit(courseModel);
+    let course = this.form.controls['course'].value;
+    let semester = this.form.controls['semester'].value;
+    let courseModel = new Course(course);
+    courseModel.semester = semester;
+    this.onCourseAdded.emit(courseModel);
   }
 
-  public removeCourse(course: ICourse){
+  public removeCourse(course: ICourse) {
     this.onCourseRemoved.emit(course);
   }
 
@@ -79,20 +79,20 @@ export class CourseSelectFormComponent implements OnInit {
 
   ngOnInit() {
 
-      this.createForm();
+    this.createForm();
     this.levels = this.EngineService.getLevels();
     this.semesters = this.EngineService.getSemesters();
 
-    this.faculties$ = this.EngineService.getFaculties().do( () => {
+    this.faculties$ = this.EngineService.getFaculties().do(() => {
       this.loading = false;
     });
 
-    this.subjects$ = this.EngineService.getsSubjects().do( () => {
+    this.subjects$ = this.EngineService.getsSubjects().do(() => {
       this.loading = false;
     });
 
-      let component = this;
-   this.form.valueChanges.subscribe(data => {
+    let component = this;
+    this.form.valueChanges.subscribe(data => {
       if (component.lastFormValue.faculty != data.faculty) {
         this.loading = true;
         this.EngineService.setFaculty(data.faculty);
@@ -109,9 +109,8 @@ export class CourseSelectFormComponent implements OnInit {
     this.allCourses$ = this.EngineService.getCourses();
   }
 
-  private createForm()
-  {
-          this.form = this.fb.group({
+  private createForm() {
+    this.form = this.fb.group({
       faculty: [null, Validators.required],
       subject: [null, Validators.required],
       course: [null, Validators.required],

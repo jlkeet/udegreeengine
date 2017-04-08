@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
@@ -21,15 +21,21 @@ import { ICourse, IFaculty, ISubject, Result} from '../../engine';
   template: require('./engine.component.html')
 })
 
-export class TestComponent {
+//
+// Root component 
+//
 
+export class EngineComponent implements OnInit{
 
  private selectedCourses$: Observable<ICourse[]>; 
  private errors$: Observable<Result[]>;
 
+  constructor( 
+    private EngineService: EngineService, 
+    private initService: InitService) {
+  }
 
-  constructor( private EngineService: EngineService, private initService: InitService) {
-
+  public ngOnInit(){
     this.selectedCourses$ = this.EngineService.selectedCourses$;
     this.errors$ = this.EngineService.errors$;
   }
