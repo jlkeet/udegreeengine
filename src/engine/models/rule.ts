@@ -3,6 +3,8 @@ import { ICourse } from './course';
 export interface IRule {
   $key?: string;
   id: string;
+  degree: string;
+  ruleid: string;
   type: number;
   course?: string;
   courses?: string[];
@@ -18,6 +20,8 @@ export interface IRule {
 export class Rule implements IRule {
   $key?: string;
   id: string;
+  degree: string;
+  ruleid: string;
   type: number;
   course?: string;
   courses?: string[];
@@ -29,6 +33,9 @@ export class Rule implements IRule {
 
   constructor(rule: any) {
     this.type = rule.type;
+    this.ruleid = rule.ruleid;
+    this.degree = rule.degree;
+    this.id = rule.id;
     this.course = rule.course;
     this.courses = rule.courses;
     this.preerqs = rule.preerqs;
@@ -71,7 +78,7 @@ export class Rule implements IRule {
       return !courses.find((c) => { return c.code == req_code });
     });
     if (missing.length > 0) {
-      return new Result(['must select all of > ' + required.toString()]);
+      return new Result([`(1) must select all of [ ${required} ]`]);
     }
     return new Result([]);
   }
@@ -82,7 +89,7 @@ export class Rule implements IRule {
       return courses.find((c) => { return c.code == req_code });
     });
     if (found.length === 0) {
-      return new Result(['must select one from ' + required.toString()]);
+      return new Result([`(2) must select one from [${required}]`]);
     }
     return new Result([]);
   }
@@ -98,7 +105,7 @@ export class Rule implements IRule {
     });
     
     if (creditsPlanned <  creditsRequired) {
-      return new Result([`must select ${creditsRequired} credits from` + required.toString()]);
+      return new Result([`(3) must select ${creditsRequired} credits from` + required.toString()]);
     }
     return new Result([]);
   }  
@@ -127,21 +134,26 @@ export class Rule implements IRule {
        return new Result([]);
        
     }
-    return new Result([`must select ${creditsRequired} credits from two of the following groups` + groups.toString()]);
+    return new Result([`(4) must select ${creditsRequired} credits from two of the following groups` + groups.toString()]);
    
   }    
 
-  private evaulateRuleTypeFive(courses: ICourse[], course:string, prereqs: string[]): Result 
-  {
+  private evaulateRuleTypeFive(courses: ICourse[], course: string, prereqs: string[]): Result {
     // for this rule type, courses must have ALL courses from prereqs in semesters earlier than course
-    let plannedSemester = courses.find( c => { return c.code == course}).semester;
+    let plannedCourse = courses.find(c => { return c.code == course });
 
-    let missing = prereqs.filter(function (req_code) {
-      return !courses.find((c) => { 
-        return c.code == req_code && c.semester < plannedSemester  });
-    });
-    if (missing.length > 0) {
-      return new Result([`must select all of > ${prereqs} before semester ${plannedSemester}`]);
+    //only proceed if this clourse planned
+    if (plannedCourse !== undefined) {
+      let plannedSemester = plannedCourse.semester;
+
+      let missing = prereqs.filter(function (req_code) {
+        return !courses.find((c) => {
+          return c.code == req_code && c.semester < plannedSemester
+        });
+      });
+      if (missing.length > 0) {
+        return new Result([`(5) must select all of [ ${prereqs} ] before semester ${plannedSemester}`]);
+      }
     }
     return new Result([]);
   }
@@ -155,24 +167,28 @@ export class Rule implements IRule {
         return c.code == req_code  });
     });
     if (found.length > 0) {
-      return new Result([`must NOT select ANY of > ${restrictions}`]);
+      return new Result([`(6) must NOT select ANY of [ ${restrictions} ]`]);
     }
     return new Result([]);
   }  
 
-  private evaulateRuleTypeSeven(courses: ICourse[], course: string, corequisites: string[])
-  {
-      let plannedSemester = courses.find( c => { return c.code == course}).semester;
- 
-      let coReqsPlannedInSameSemester = corequisites.filter(function (req_code) {
-      return courses.find((c) => { 
-        return c.code == req_code && c.semester === plannedSemester  });
-    });
+  private evaulateRuleTypeSeven(courses: ICourse[], course: string, corequisites: string[]) {
+    let plannedCourse = courses.find(c => { return c.code == course });
+    //only proceed if this clourse planned
+    if (plannedCourse !== undefined) {
+      let plannedSemester = plannedCourse.semester;
 
-    if (coReqsPlannedInSameSemester.length === 0) {
-      return new Result([`must select AT least on of > ${corequisites} in semsester ${plannedSemester}`]);
+      let coReqsPlannedInSameSemester = corequisites.filter(function (req_code) {
+        return courses.find((c) => {
+          return c.code == req_code && c.semester === plannedSemester
+        });
+      });
+
+      if (coReqsPlannedInSameSemester.length === 0) {
+        return new Result([`(7) must select AT least on of [ ${corequisites} ] in semsester ${plannedSemester}`]);
+      }
     }
-      return new Result([]);
+    return new Result([]);
   }
 }
 

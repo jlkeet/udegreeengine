@@ -3,10 +3,8 @@ import { ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Subject as Subject } from 'rxjs/Subject';
 
-import { EngineService } from '../services/engine.service';
-import { ICourse } from '../models/course';
-import { IFaculty } from '../models/faculty';
-import { ISubject } from '../models/subject';
+import { EngineService } from '../../engine';
+import { ICourse, IFaculty, ISubject } from '../../engine';
 
 @Component({
   selector: 'course-list',

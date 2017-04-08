@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { ICourse } from '../models/course';
+import { ICourse } from '../../engine';
 
 @Component({
   selector: 'semester-course-list',

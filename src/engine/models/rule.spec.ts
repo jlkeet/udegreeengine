@@ -265,7 +265,7 @@ describe('models/', () => {
 
    //Restriction
     it('evaulateRuleTypeSix_RequirementsMet_ReturnsTrue', () => {
-      // for this rule type, must choose all courses in preerqs, in earlier semester
+      // for this rule type, cannot choose any course in restrictions
      let rule = new Rule({ 
          type: 6, 
          degree: 'B1', 
@@ -285,7 +285,7 @@ describe('models/', () => {
     });   
 
     it('evaulateRuleTypeSix_RestrictedCoursePlanned_ReturnsFalse', () => {
-      // for this rule type, must choose all courses in preerqs, in earlier semester
+      // for this rule type, cannot choose any course in restrictions
      let rule = new Rule({ 
          type: 6, 
          degree: 'B1', 

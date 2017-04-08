@@ -1,7 +1,4 @@
-<label>Bachelor of Architectural Studies - BAS</label>
-<div class="container">
-    <div class="column box">
-        <form [formGroup]="form">
+<form [formGroup]="form">
             <div *ngIf="loading" class="loading-shield">Loading</div>
             <div class="mdl-selectfield">
                 <label for="faculty">Faculty</label>
@@ -51,25 +48,6 @@
                             {{semester}}
                         </option>
                     </select>                 
-                 <button (click)="addCourse()">Add</button>
+                 <button [disabled]="!form.controls['semester'].value" (click)="addCourse()">Add</button>
             </div>
         </form>
-
-
-    </div>
-    <div class="column box">
-        <error-list [errors]="errors$"></error-list>
-    </div>
-</div>
-<div class="container">
- 
-        <div class="column box">
-        <total-points [courses]="selectedCourses$" [title]="'Total Points'"></total-points>
-     
-        <semester-course-list class="box" [courses]="selectedCourses$" [semester]="1" [title]="'Semester One'" (onRemoveCourse)="removeCourse($event)"></semester-course-list>
-        <semester-course-list class="box" [courses]="selectedCourses$" [semester]="2" [title]="'Semester Two'" (onRemoveCourse)="removeCourse($event)"></semester-course-list>
-        <semester-course-list class="box" [courses]="selectedCourses$" [semester]="3" [title]="'Semester Three'" (onRemoveCourse)="removeCourse($event)"></semester-course-list>
-</div> 
-
-
-</div>

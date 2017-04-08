@@ -2,10 +2,8 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { EngineService } from '../services/engine.service';
-import { ICourse } from '../models/course';
-import { IFaculty } from '../models/faculty';
-import { ISubject } from '../models/subject';
+import { EngineService } from '../../engine';
+import { ICourse } from '../../engine';
 
 @Component({
   selector: 'total-points',
@@ -16,7 +14,7 @@ import { ISubject } from '../models/subject';
 })
 
 export class TotalPointsComponent implements OnInit {
-  @Input() courses: Observable<ICourse>;
+  @Input() courses: Observable<ICourse[]>;
   @Input() title: string;
   private totalPoints: number;
   constructor() {  }
@@ -28,8 +26,7 @@ export class TotalPointsComponent implements OnInit {
         totalPoints = 0;
         //todo why error?
         courses.forEach(c => {
-            totalPoints += parseInt(c.credits);
-           
+            totalPoints += c.credits;
         })
         return totalPoints;
       },

@@ -1,0 +1,21 @@
+<label>Bachelor of Architectural Studies - BAS</label>
+<div class="container">
+    <div class="column column-third box">
+        <course-select-form (onCourseAdded)="addCourse($event)" (onCourseRemoved)="removeCourse($event)"></course-select-form>
+    </div>
+    <div class="column box">
+        <error-list [errors]="errors$"></error-list>
+    </div>
+</div>
+<div class="container">
+ 
+        <div class="column column-third box">
+        <total-points [courses]="selectedCourses$" [title]="'Total Points'"></total-points>
+     
+        <semester-course-list class="box" [courses]="selectedCourses$" [semester]="1" [title]="'Semester One'" (onRemoveCourse)="removeCourse($event)"></semester-course-list>
+        <semester-course-list class="box" [courses]="selectedCourses$" [semester]="2" [title]="'Semester Two'" (onRemoveCourse)="removeCourse($event)"></semester-course-list>
+        <semester-course-list class="box" [courses]="selectedCourses$" [semester]="3" [title]="'Semester Three'" (onRemoveCourse)="removeCourse($event)"></semester-course-list>
+</div> 
+
+
+</div>

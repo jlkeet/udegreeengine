@@ -112,11 +112,12 @@ export class EngineService {
           return new Rule(r);
         })
       })
-    this.allRules$.subscribe(rules => {
+    this.allRules$.subscribe(rules => {   
       this.rules = rules;
     });
 
     //currently we always use this degree
+    //this triggers the fetch of rules for degree B1
     this.filterDegree.next('B1');
 
 
@@ -135,14 +136,12 @@ export class EngineService {
     // A rule needs to return TRUE/ FALSE and if false an error message(s)
     let results: Result[] = [];
     rules.forEach((rule) => {
-
       results = results.concat(rule.evaluate(courses));
     });
     return results;
   }
 
-  addCourse(semester: number, course: ICourse) {
-    course.semester = semester;
+  addCourse(course: ICourse) {
     this.newCourses.next(course);
   }
 
@@ -197,6 +196,7 @@ export class EngineService {
   }
 
   getRules(): Observable<IRule[]> {
+    //we only fetch the rules for the selected degree
     this.allRules$ = this.af.database.list(this.RULES, {
       query: {
         orderByChild: 'degree',

@@ -20,4 +20,4 @@ const routes: Routes = [
     RouterModule
   ]
 })
-export class EngineRoutingModule { }
+export class EngineUIRoutingModule { }
